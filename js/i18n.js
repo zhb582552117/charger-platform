@@ -227,6 +227,37 @@ const I18N = {
       afterSalesNote: "📋 需要提供故障充电机铭牌、故障现象及使用环境，配件安装我司给予技术指导。",
       chargingPortTitle: "🔌 充电口定义",
       chargingPortDesc: "CZC7EI充电机配备REMA（公/母）和国标直流充电枪接口，匹配杭叉国标锂电池。<br>充电口定义需根据具体机型和电池型号确认，安装时请参考设备铭牌和接口标识。",
+      // 系统架构
+      systemArchTitle: "📡 系统架构",
+      systemArchSubtitle: "CZC7EI充电机系统框图——上位机主控板调度功率模块，CAN总线连接电池BMS",
+      systemArchComponentLabel: "组件",
+      systemArchDescLabel: "说明",
+      // 电路设计
+      circuitDesignTitle: "⚡ 电路设计原理",
+      circuitDesignSubtitle: "CZC7EI充电机电路设计原理——辅助电源、控制板、电气接线",
+      circuitSectionLabel: "电路部分",
+      circuitDescLabel: "原理说明",
+      // DIP开关
+      dipSwitchTitle: "⚙️ DIP拨码开关设置",
+      dipSwitchSubtitle: "CZC7EI主控板拨码开关用于设置充电曲线、通讯协议、模块数量等参数",
+      dipSwitchNote: "⚠️ 拨码开关设置错误会导致充电异常，修改前请联系技术支持确认正确配置。",
+      // 售后维修检测
+      maintenanceDetectionTitle: "🔧 售后维修检测流程",
+      maintenanceDetectionSubtitle: "充电机上电连接电池后，从AC接触器到控制板依次检测",
+      maintenanceComponentLabel: "检测部件",
+      maintenanceTestPointLabel: "检测点",
+      maintenanceNormalLabel: "正常值",
+      maintenanceNoteLabel: "备注",
+      maintenanceNote: "💡 当有一步异常时，表明是本身故障或上一步器件故障，按顺序从左到右排查。",
+      // 检测端子
+      detectionTerminalTitle: "🔌 检测端子排线",
+      detectionTerminalSubtitle: "CAN通讯、开关电源、REMA连接确认端子检测方法",
+      terminalNameLabel: "信号名称",
+      terminalIdLabel: "端子标识",
+      terminalDescLabel: "说明",
+      // 急停开关
+      emergencyStopTitle: "🔴 急停开关操作",
+      emergencyStopSubtitle: "急停开关仅安装于外形尺寸大于485×271×310的充电机型号",
       // 知识库侧边栏
       kbNavProduct: "🏢 产品概述",
       kbNavSpecs: "📋 技术参数",
@@ -235,6 +266,12 @@ const I18N = {
       kbNavDetection: "🔍 检测流程",
       kbNavTestpoints: "📍 检测部位",
       kbNavModules: "📊 模块代码",
+      kbNavSystemArch: "📡 系统架构",
+      kbNavCircuit: "⚡ 电路设计",
+      kbNavDipSwitch: "⚙️ DIP开关",
+      kbNavMaintenance: "🔧 维修检测",
+      kbNavTerminal: "🔌 端子排线",
+      kbNavEmergencyStop: "🔴 急停开关",
       kbNavTools: "🛠️ 工具与售后"
     },
     en: {
@@ -336,6 +373,31 @@ const I18N = {
       afterSalesNote: "📋 Provide the faulty charger nameplate, fault description, and operating environment. Installation technical guidance is provided.",
       chargingPortTitle: "🔌 Charging Port Definition",
       chargingPortDesc: "CZC7EI charger features REMA (male/female) and GB DC charging gun interfaces, compatible with Hangcha GB lithium batteries.<br>Port definitions vary by model and battery type. Refer to the equipment nameplate and port labels during installation.",
+      systemArchTitle: "📡 System Architecture",
+      systemArchSubtitle: "CZC7EI charger system block diagram — master control board dispatches power modules, CAN bus connects battery BMS",
+      systemArchComponentLabel: "Component",
+      systemArchDescLabel: "Description",
+      circuitDesignTitle: "⚡ Circuit Design Principles",
+      circuitDesignSubtitle: "CZC7EI charger circuit design — auxiliary power, control board, electrical wiring",
+      circuitSectionLabel: "Circuit Section",
+      circuitDescLabel: "Description",
+      dipSwitchTitle: "⚙️ DIP Switch Settings",
+      dipSwitchSubtitle: "CZC7EI main control board DIP switch for setting charging curve, communication protocol, module count, etc.",
+      dipSwitchNote: "⚠️ Incorrect DIP switch settings may cause charging abnormalities. Contact tech support before modifying.",
+      maintenanceDetectionTitle: "🔧 Maintenance Detection Procedure",
+      maintenanceDetectionSubtitle: "Power on charger with battery connected, check components sequentially from AC contactor to control board",
+      maintenanceComponentLabel: "Component",
+      maintenanceTestPointLabel: "Test Point",
+      maintenanceNormalLabel: "Normal Value",
+      maintenanceNoteLabel: "Note",
+      maintenanceNote: "💡 If any step is abnormal, it indicates a fault at that point or the previous device. Check sequentially from left to right.",
+      detectionTerminalTitle: "🔌 Detection Terminal Wiring",
+      detectionTerminalSubtitle: "CAN communication, switching power supply, REMA connection confirmation terminal detection method",
+      terminalNameLabel: "Signal Name",
+      terminalIdLabel: "Terminal ID",
+      terminalDescLabel: "Description",
+      emergencyStopTitle: "🔴 Emergency Stop Operation",
+      emergencyStopSubtitle: "E-stop button only installed on charger models larger than 485×271×310",
       kbNavProduct: "🏢 Product Overview",
       kbNavSpecs: "📋 Specifications",
       kbNavInstallation: "📐 Installation",
@@ -343,6 +405,12 @@ const I18N = {
       kbNavDetection: "🔍 Detection Procedure",
       kbNavTestpoints: "📍 Test Points",
       kbNavModules: "📊 Module Codes",
+      kbNavSystemArch: "📡 System Architecture",
+      kbNavCircuit: "⚡ Circuit Design",
+      kbNavDipSwitch: "⚙️ DIP Switch",
+      kbNavMaintenance: "🔧 Maintenance",
+      kbNavTerminal: "🔌 Terminal Wiring",
+      kbNavEmergencyStop: "🔴 E-Stop",
       kbNavTools: "🛠️ Tools & Service"
     }
   },
@@ -389,9 +457,21 @@ const I18N = {
         dcTestPoints: { title: "DC Output 1/2/3 Point Measurement", desc: "Key test points to determine DC contactor or module fault" },
         internalStructure: { title: "Internal Structure Layout", desc: "Main control board, power board, switching supply, DC contactor locations" },
         externalParts: { title: "E-Stop / Power Module / Breaker", desc: "Emergency stop button, power module, and main power switch locations" },
-        logo: { title: "Shanghai Shineng Electrical Equipment Co., Ltd.", desc: "SHINENG brand logo" },
+        logo: { title: "Shanghai Shineng Electrical Equipment Co., Ltd.", desc: "SHINENG brand logo (SINCE 1984)" },
         chargingCurve: { title: "Charging Curve Diagram", desc: "Tt = total charging time; T2 = constant voltage phase; I1 = constant current; U2 = constant voltage; I3 = shutdown current" },
-        installationLayout: { title: "Charger Installation Layout Requirements", desc: "Space, distance, and ventilation requirements for charging site" }
+        installationLayout: { title: "Charger Installation Layout Requirements", desc: "Space, distance, and ventilation requirements for charging site" },
+        eSeriesInternal: { title: "CZC7EI-E Series Internal Structure", desc: "3.3kW module model internal layout: main control board, auxiliary power board, switching supply, DC contactor" },
+        dSeriesInternal: { title: "CZC7EI-D Series Internal Structure", desc: "10kW module model internal layout with control board position" },
+        dSeriesAppearance: { title: "CZC7EI-D Appearance & Layout", desc: "D series charger appearance, internal layout, and power module structure" },
+        electricDiagram: { title: "CZC7EI Electrical Diagram", desc: "Charger electrical wiring schematic diagram" },
+        detectionTerminal: { title: "Detection Terminal Wiring Diagram", desc: "CAN S+S-, switching power A+A-, REMA CC1 short to PE detection terminals" },
+        systemBlockDiagram: { title: "CZC7EI System Block Diagram", desc: "Master control board → power modules → battery BMS → CAN bus communication system" },
+        eCircuitDiagram: { title: "CZC7EI-E Electrical Diagram (3.3kW module)", desc: "E series 3.3kW power module electrical wiring schematic" },
+        dCircuitDiagram: { title: "CZC7EI-D Electrical Diagram (10kW module)", desc: "D series 10kW power module electrical wiring schematic" },
+        auxPowerCircuit: { title: "Auxiliary Power Circuit Principle", desc: "Input rectifier filter → auxiliary power output → 5V/12V/7.5V power supply principle" },
+        controlBoardCircuit: { title: "Control Board Circuit Principle", desc: "MCU, DIP switch, buttons, power supply, control relay, 2 CAN channels, CC1, LED display" },
+        seriesLineup: { title: "CZC7EI Series Model Overview", desc: "D series (10kW/2-module, 10kW/3-module) and E series (3.3kW module) comparison" },
+        internalStructureDetail: { title: "CZC7EI-E Internal Structure Detail", desc: "Power module, main control board, auxiliary power board, switching supply, DC contactor labeled positions" }
       },
       eiGuideSteps: [
         {
@@ -470,17 +550,31 @@ const I18N = {
         formula: {
           inputPower: "Input Power Pin(KVA), Input Current Iin(A), Max Output Voltage Ue(V), Rated Output Current Ie(A)",
           singlePhase: "Single/Two Phase: Pin = Ie×Ue / 0.9 / 1000",
-          threePhase: "Three Phase: Pin = Ie×Ue / 0.93 / 1000 (D60V/A specs use 0.87)",
+          threePhase: "Three Phase: Pin = Ie×Ue / η / 1000",
+          powerCoefficients: "Power coefficient η varies by model: D57.5/200, D60V/100A, D60V/150A, D60V/200A, D90V/200A, D100V/140A etc. η=0.87; D93.5V/200A, D100V/80A, D100V/100A, D100V/200A, D120V/250A etc. η=0.93",
           current: "Iin = Pin×1000 / Uin (single phase); Iin = Pin×1000 / (√3 × Uin) (three phase)",
-          example: "Example: D100V/200A three-phase 380V: Ie=200A, Ue=100V, Uin=380V, Pin=200×100÷0.93÷1000=21.5kW, Iin=21.5×1000÷380÷√3=32.7A"
+          example: "Example: D100V/200A three-phase 380V: Ie=200A, Ue=100V, Uin=380V, η=0.93, Pin=200×100÷0.93÷1000=21.5kVA, Iin=21.5×1000÷380÷√3=32.7A"
         },
         note: "Custom specifications available. For unlisted models, calculate using the formulas above.",
         models: [
+          { spec: "E29.2V/80A", input: "Single Phase 220V", power: "2.6kVA", current: "11.8A", maxCurrent: "80A", maxVoltage: "29.2V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
+          { spec: "E30V/80A", input: "Single Phase 220V", power: "2.7kVA", current: "12.1A", maxCurrent: "80A", maxVoltage: "30V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
           { spec: "E30V/100A", input: "Single Phase 220V", power: "3.3kVA", current: "15.2A", maxCurrent: "100A", maxVoltage: "30V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
-          { spec: "D60V/100A", input: "Three Phase 380V", power: "6.9kVA", current: "10.5A", maxCurrent: "100A", maxVoltage: "60V", weight: "36kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-          { spec: "D60V/200A", input: "Three Phase 380V", power: "13.8kVA", current: "21.0A", maxCurrent: "200A", maxVoltage: "60V", weight: "48kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-          { spec: "D100V/100A", input: "Three Phase 380V", power: "10.8kVA", current: "16.3A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-          { spec: "D100V/200A", input: "Three Phase 380V", power: "21.5kVA", current: "32.7A", maxCurrent: "200A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
+          { spec: "E60V/50A", input: "Single Phase 220V", power: "3.3kVA", current: "15.2A", maxCurrent: "50A", maxVoltage: "60V", weight: "16kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
+          { spec: "E100V/100A", input: "Single Phase 220V", power: "10.8kVA", current: "48.9A", maxCurrent: "100A", maxVoltage: "100V", weight: "35kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D30V/200A", input: "Three Phase 380V", power: "6.7kVA", current: "15.2A", maxCurrent: "200A", maxVoltage: "30V", weight: "35kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D57.5V/200A", input: "Three Phase 380V", power: "13.2kVA", current: "20.1A", maxCurrent: "200A", maxVoltage: "57.5V", weight: "48kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D60V/100A", input: "Three Phase 380V", power: "6.9kVA", current: "10.5A", maxCurrent: "100A", maxVoltage: "60V", weight: "36kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D60V/150A", input: "Three Phase 380V", power: "10.3kVA", current: "15.7A", maxCurrent: "150A", maxVoltage: "60V", weight: "38kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D60V/200A", input: "Three Phase 380V", power: "13.8kVA", current: "21.0A", maxCurrent: "200A", maxVoltage: "60V", weight: "48kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D90V/200A", input: "Three Phase 380V", power: "20.7kVA", current: "31.4A", maxCurrent: "200A", maxVoltage: "90V", weight: "44kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D93.5V/200A", input: "Three Phase 380V", power: "20.1kVA", current: "30.6A", maxCurrent: "200A", maxVoltage: "93.5V", weight: "44kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/65A", input: "Three Phase 380V", power: "7.0kVA", current: "10.6A", maxCurrent: "65A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/80A", input: "Three Phase 380V", power: "8.6kVA", current: "13.1A", maxCurrent: "80A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/100A", input: "Three Phase 380V", power: "10.8kVA", current: "16.3A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/100A(400V)", input: "Three Phase 400V", power: "10.8kVA", current: "15.5A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/140A", input: "Three Phase 380V", power: "16.1kVA", current: "24.4A", maxCurrent: "140A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+          { spec: "D100V/200A", input: "Three Phase 380V", power: "21.5kVA", current: "32.7A", maxCurrent: "200A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
           { spec: "D120V/250A", input: "Three Phase 380V", power: "32.3kVA", current: "49.0A", maxCurrent: "250A", maxVoltage: "120V", weight: "125kg", comm: "CAN", ip: "IP21", size: "809×500×1030" }
         ]
       },
@@ -771,6 +865,108 @@ const I18N = {
           { type: "Claims", condition: "Confirmed missing parts or serious quality defect", action: "Parts claim processed" }
         ],
         requirement: "Provide faulty charger nameplate, fault description, and operating environment. Installation technical guidance is provided."
+      },
+      systemArchitecture: {
+        title: "CZC7EI Charger System Block Diagram",
+        desc: "The charger consists of a master control board controlling multiple power modules, communicating with battery BMS via CAN bus for intelligent charging control.",
+        components: [
+          { name: "Master Control Board", desc: "Core controller that receives BMS requests and dispatches power modules" },
+          { name: "Power Modules 1~4", desc: "10kW or 3.3kW power modules, parallelable for combined output, dispatched by master board" },
+          { name: "Battery BMS", desc: "Lithium battery management system, sends charging requests (voltage, current, SOC) via CAN bus" },
+          { name: "CAN Bus Communication", desc: "2 CAN channels: one for battery BMS communication, one for internal module communication" },
+          { name: "LED Display", desc: "Real-time display of voltage, current, capacity, time, SOC, charging stage, etc." },
+          { name: "Output Cable", desc: "DC output cable connecting battery pack, controlled by DC contactor" }
+        ],
+        image: "systemBlockDiagram"
+      },
+      circuitDesign: {
+        title: "CZC7EI Circuit Design Principles",
+        sections: [
+          {
+            name: "Auxiliary Power Section",
+            desc: "Input rectifier filter → auxiliary power output → main 5V, 12V and 7.5V output. Provides stable power for control board, display, CAN communication, etc.",
+            image: "auxPowerCircuit"
+          },
+          {
+            name: "Control Board Section",
+            desc: "Contains MCU (core computation), DIP switch (parameter setting), buttons (start/stop, info), power supply, control relay, 2 CAN channels, CC1 connection confirmation, LED display.",
+            image: "controlBoardCircuit"
+          },
+          {
+            name: "CZC7EI-D Electrical Diagram (10kW Module)",
+            desc: "D series uses 10kW power modules, supporting 2-module or 3-module parallel configuration. Electrical path: breaker → AC contactor → power modules → DC contactor → output.",
+            image: "dCircuitDiagram"
+          },
+          {
+            name: "CZC7EI-E Electrical Diagram (3.3kW Module)",
+            desc: "E series uses single 3.3kW power module. Electrical path: breaker → power module → DC contactor → output.",
+            image: "eCircuitDiagram"
+          }
+        ]
+      },
+      dipSwitchSettings: {
+        title: "CZC7EI Main Control Board DIP Switch Settings",
+        desc: "DIP switches on the main control board are used to set charger parameters, including charging curve selection, communication protocol, and module count. Refer to the equipment nameplate and factory configuration for specific settings.",
+        note: "Incorrect DIP switch settings may cause charging abnormalities. Contact tech support before modifying."
+      },
+      maintenanceDetection: {
+        title: "Maintenance Detection Procedure",
+        desc: "Power on charger, connect battery, then check components sequentially from left to right (from AC contactor to control board):",
+        steps: [
+          {
+            component: "AC Contactor",
+            testPoints: [
+              { point: "Upper L1/L2/L3", normal: "AC380V between any two", note: "3-phase input test" },
+              { point: "Lower T1/T2/T3", normal: "AC380V between any two", note: "3-phase output test" }
+            ]
+          },
+          {
+            component: "Transformer",
+            testPoints: [
+              { point: "1~2 terminal", normal: "AC220V", note: "Single-phase output" },
+              { point: "1~3 terminal", normal: "AC380V", note: "Three-phase output" }
+            ]
+          },
+          {
+            component: "Switching Power Supply",
+            testPoints: [
+              { point: "L~N terminal", normal: "AC220V (input)", note: "Switching power input" },
+              { point: "+V~-V terminal", normal: "DC12V (output)", note: "Switching power output" }
+            ]
+          },
+          {
+            component: "Control Board Power",
+            testPoints: [
+              { point: "3 power cable groups", normal: "DC5V, 7.9V, 12V", note: "2 cables per group, check 3 groups total" }
+            ]
+          }
+        ],
+        note: "If any step is abnormal, it indicates a fault at that point or the previous device. Check sequentially from left to right.",
+        image: "eSeriesInternal"
+      },
+      detectionTerminals: {
+        title: "Detection Terminal Wiring",
+        desc: "Charger signal terminal wiring detection method:",
+        items: [
+          { name: "CAN Communication Signal", terminals: "S+ S-", desc: "Charger-BMS communication signal lines" },
+          { name: "Switching Power Output", terminals: "A+ A-", desc: "Auxiliary power output; measure voltage DC12V when powered on, resistance when off" },
+          { name: "REMA Connection Confirmation", terminals: "CC1 short to PE", desc: "CC1 shorted to PE confirms charging gun connection" }
+        ],
+        resistance: {
+          sPlusMinus: "S+~S- resistance: ~60Ω with battery, ~120Ω without battery",
+          aPlusMinus: "A+~A- voltage: DC12V when powered on",
+          cc1PE: "CC1~PE: short connection confirmation"
+        },
+        image: "detectionTerminal"
+      },
+      emergencyStop: {
+        title: "Emergency Stop Operation Instructions",
+        desc: "Emergency stop button is only installed on charger models with dimensions larger than 485×271×310.",
+        operation: [
+          "Emergency: Press the red E-stop button when immediate charging stop is needed",
+          "Reset: The E-stop button does not auto-recover after being pressed. Rotate the red button clockwise until it pops up, then the charger can be powered normally",
+          "Caution: The E-stop is for emergency stops to avoid abnormal electric shock or fire. Do not operate during normal use as it causes unnecessary repeated operations"
+        ]
       }
     }
   },
@@ -913,7 +1109,13 @@ const I18N = {
     "charging_curve": ["curve", "constant current", "constant voltage", "i1", "u2", "i3", "tt", "t2"],
     "phase_loss": ["phase loss", "e-03", "3-phase", "missing phase"],
     "input_voltage_fault": ["input overvoltage", "input undervoltage", "e-12", "e-13", "grid voltage"],
-    "e_stop": ["e-stop", "emergency stop", "locked", "reset"]
+    "e_stop": ["e-stop", "emergency stop", "locked", "reset"],
+    "system_arch": ["system", "architecture", "can bus", "bms communication", "master control", "power module parallel", "block diagram"],
+    "circuit_design": ["circuit", "auxiliary power", "control board", "electrical diagram", "circuit design", "5v", "12v", "7.5v"],
+    "maintenance_detection": ["maintenance", "repair detection", "detection procedure", "ac contactor test", "transformer test", "switching power test", "from left to right"],
+    "detection_terminal": ["terminal", "wiring", "s+s-", "a+a-", "cc1 short", "signal terminal", "terminal detection"],
+    "e_d_structure": ["e series internal", "d series internal", "3.3kw internal", "10kw internal", "model internal difference"],
+    "dip_switch": ["dip switch", "dip", "parameter setting", "curve selection", "protocol setting"]
   }
 };
 

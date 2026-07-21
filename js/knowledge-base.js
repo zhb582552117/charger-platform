@@ -11,8 +11,8 @@ const KNOWLEDGE_BASE = {
     brand: "SHINENG 施能",
     since: 1984,
     series: "CZC7EI 系列智能充电机",
-    version: "CZC7EI_1.0.2",
-    description: "采用高性能嵌入式充电控制单元，通过参数优化设计的主电路模块，为铅酸蓄电池、锂电池提供连续可调的充电电流，满足各种充电工艺要求。内置默认充电曲线，也可按用户需求出厂定制充电曲线。",
+    version: "CZC7EI_1.0.9",
+    description: "采用高性能嵌入式充电控制单元，通过参数优化设计的主电路模块，为锂电池提供连续可调的充电电流，满足各种充电工艺要求。内置默认充电曲线及多种BMS充电通讯协议，也可按用户需求出厂定制充电曲线，满足定制化充电要求。充电控制器实时监控充电过程各项参数，具备完善的保护功能，同时提供通讯端口、输出保护端口及与其他设备连锁控制，方便上位机控制。",
     models: [
       { code: "CZC7EI-D", desc: "锂电池充电机 (10kW模块/2模块)", power: "10kW×2" },
       { code: "CZC7EI-D", desc: "锂电池充电机 (10kW模块/3模块)", power: "10kW×3" },
@@ -39,7 +39,7 @@ const KNOWLEDGE_BASE = {
   },
 
   // ===== 图片资源库 =====
-  // 所有图片均从 EI指导.docx 中提取
+  // 图片来源：EI指导.docx、售后维修PPTX、充电机介绍PPTX、中英文说明书PDF
   images: {
     powerSupply: {
       src: "images/ei_guide_1.png",
@@ -82,9 +82,9 @@ const KNOWLEDGE_BASE = {
       desc: "急停开关、电源模块、总电源开关位置"
     },
     logo: {
-      src: "images/en_manual_page1_Image9.jpg",
+      src: "images/intro_image3.png",
       title: "上海施能电器设备有限公司",
-      desc: "SHINENG 施能品牌LOGO"
+      desc: "SHINENG 施能品牌LOGO（SINCE 1984）"
     },
     chargingCurve: {
       src: "images/en_manual_page8_Image56.jpg",
@@ -95,6 +95,67 @@ const KNOWLEDGE_BASE = {
       src: "images/ei_guide_7.png",
       title: "充电机安装布置要求",
       desc: "充电场所空间、距离及通风要求"
+    },
+    // ===== 新增图片（售后维修PPTX & 充电机介绍PPTX）=====
+    eSeriesInternal: {
+      src: "images/maintenance_image5.png",
+      title: "CZC7EI-E系列内部结构",
+      desc: "3.3kW模块机型内部布局：主控板、辅助电源板、开关电源、直流接触器等"
+    },
+    dSeriesInternal: {
+      src: "images/maintenance_image7.png",
+      title: "CZC7EI-D系列内部结构",
+      desc: "10kW模块机型内部布局及外观，含控制板位置"
+    },
+    dSeriesAppearance: {
+      src: "images/maintenance_image8.png",
+      title: "CZC7EI-D外观与布局",
+      desc: "D系列充电机外观、内部布局及电源模块结构"
+    },
+    electricDiagram: {
+      src: "images/maintenance_image13.png",
+      title: "CZC7EI电气原理图",
+      desc: "充电机电气接线原理图"
+    },
+    detectionTerminal: {
+      src: "images/maintenance_image14.png",
+      title: "检测端子排线图",
+      desc: "CAN通讯S+S-、开关电源A+A-、REMA CC1短接PE检测端子"
+    },
+    systemBlockDiagram: {
+      src: "images/intro_image10.png",
+      title: "CZC7EI系统框图",
+      desc: "上位机主控板→功率模块→电池BMS→CAN总线通讯系统框图"
+    },
+    eCircuitDiagram: {
+      src: "images/intro_image15.png",
+      title: "CZC7EI-E电气原理图（3.3kW模块）",
+      desc: "E系列3.3kW功率模块电气接线原理图"
+    },
+    dCircuitDiagram: {
+      src: "images/intro_image16.png",
+      title: "CZC7EI-D电气原理图（10kW模块）",
+      desc: "D系列10kW功率模块电气接线原理图"
+    },
+    auxPowerCircuit: {
+      src: "images/intro_image8.png",
+      title: "辅助电源电路原理",
+      desc: "输入整流滤波→辅助电源输出→5V/12V/7.5V各路供电原理"
+    },
+    controlBoardCircuit: {
+      src: "images/intro_image9.png",
+      title: "控制板电路原理",
+      desc: "单片机、拨码开关、按键、供电、控制继电器、2路CAN通讯、CC1连接确认、数码管显示"
+    },
+    seriesLineup: {
+      src: "images/intro_image19.png",
+      title: "CZC7EI系列机型一览",
+      desc: "D系列(10kW/2模块、10kW/3模块)和E系列(3.3kW模块)充电机型号对比"
+    },
+    internalStructureDetail: {
+      src: "images/maintenance_image4.png",
+      title: "CZC7EI-E内部结构标注",
+      desc: "电源模块、主控板、辅助电源板、开关电源、直流接触器等部件标注位置"
     }
   },
 
@@ -163,6 +224,120 @@ const KNOWLEDGE_BASE = {
     }
   ],
 
+  // ===== 系统架构 =====
+  systemArchitecture: {
+    title: "CZC7EI充电机系统框图",
+    desc: "充电机由上位机主控板控制多个功率模块，通过CAN总线与电池BMS通讯，实现智能充电控制。",
+    components: [
+      { name: "上位机主控板", desc: "充电机核心控制器，接收BMS请求并调度功率模块输出" },
+      { name: "功率模块1~4", desc: "10kW或3.3kW功率模块，可多模块并联输出，受主控板调度" },
+      { name: "电池BMS", desc: "锂电池组管理系统，通过CAN总线向充电机发送充电请求（电压、电流、SOC等）" },
+      { name: "CAN总线通讯", desc: "2路CAN通讯接口，一路与电池BMS通讯，一路内部模块通讯" },
+      { name: "数码管显示", desc: "LED数码管实时显示电压、电流、容量、时间、SOC、充电阶段等" },
+      { name: "输出电瓶线", desc: "直流输出线连接电池组，经直流接触器控制通断" }
+    ],
+    image: "systemBlockDiagram"
+  },
+
+  // ===== 电路设计原理 =====
+  circuitDesign: {
+    title: "CZC7EI电路设计原理",
+    sections: [
+      {
+        name: "辅助电源部分",
+        desc: "输入整流滤波→辅助电源输出→主路5V、12V输出和7.5V输出。为控制板、数码管、CAN通讯等提供稳定供电。",
+        image: "auxPowerCircuit"
+      },
+      {
+        name: "控制板部分",
+        desc: "包含单片机（核心运算）、拨码开关（参数设置）、按键（启/停、信息）、供电电源、控制继电器、2路CAN通讯、CC1连接确认、数码管和指示灯显示等模块。",
+        image: "controlBoardCircuit"
+      },
+      {
+        name: "CZC7EI-D电气原理（10kW模块）",
+        desc: "D系列采用10kW功率模块，支持2模块或3模块并联。电气接线包含：断路器→交流接触器→功率模块→直流接触器→输出端。",
+        image: "dCircuitDiagram"
+      },
+      {
+        name: "CZC7EI-E电气原理（3.3kW模块）",
+        desc: "E系列采用3.3kW功率模块，单模块结构。电气接线包含：断路器→功率模块→直流接触器→输出端。",
+        image: "eCircuitDiagram"
+      }
+    ]
+  },
+
+  // ===== DIP拨码开关设置 =====
+  dipSwitchSettings: {
+    title: "CZC7EI主控板拨码开关设置",
+    desc: "主控板上拨码开关用于设置充电机参数，包括充电曲线选择、通讯协议、模块数量等。具体设置请参考设备铭牌参数和出厂配置。",
+    note: "拨码开关设置错误会导致充电异常，修改前请联系技术支持确认正确配置。"
+  },
+
+  // ===== 售后维修检测流程（来自维修PPTX）=====
+  maintenanceDetection: {
+    title: "售后维修检测流程",
+    desc: "充电机上电、连接电池后，从左到右依次检测以下部件（从AC接触器到控制板）：",
+    steps: [
+      {
+        component: "AC接触器",
+        testPoints: [
+          { point: "上方L1/L2/L3之间", normal: "两两之间均为AC380V", note: "三相输入检测" },
+          { point: "下方T1/T2/T3之间", normal: "两两之间均为AC380V", note: "三相输出检测" }
+        ]
+      },
+      {
+        component: "变压器",
+        testPoints: [
+          { point: "1~2端子", normal: "AC220V", note: "单相输出" },
+          { point: "1~3端子", normal: "AC380V", note: "三相输出" }
+        ]
+      },
+      {
+        component: "开关电源",
+        testPoints: [
+          { point: "L~N端子", normal: "AC220V（输入）", note: "开关电源输入" },
+          { point: "+V~-V端子", normal: "DC12V（输出）", note: "开关电源输出" }
+        ]
+      },
+      {
+        component: "控制板供电",
+        testPoints: [
+          { point: "3组供电线缆", normal: "DC5V、7.9V、12V", note: "每组2根线缆，共检测3组" }
+        ]
+      }
+    ],
+    note: "当有一步异常时，表明是本身故障或上一步器件故障。按顺序从左到右排查。",
+    image: "eSeriesInternal"
+  },
+
+  // ===== 检测端子排线 =====
+  detectionTerminals: {
+    title: "检测端子排线",
+    desc: "充电机信号端子排线检测方法：",
+    items: [
+      { name: "CAN通讯信号", terminals: "S+ S-", desc: "充电机与电池BMS通讯信号线" },
+      { name: "开关电源输出", terminals: "A+ A-", desc: "辅助电源输出，上电测电压DC12V，关机测电阻" },
+      { name: "REMA连接确认", terminals: "CC1短接PE", desc: "CC1与PE短接确认充电枪连接" }
+    ],
+    resistance: {
+      sPlusMinus: "S+~S-电阻：接电池约60Ω，断开电池约120Ω",
+      aPlusMinus: "A+~A-电压：上电DC12V",
+      cc1PE: "CC1~PE：短接确认"
+    },
+    image: "detectionTerminal"
+  },
+
+  // ===== 急停开关说明 =====
+  emergencyStop: {
+    title: "急停开关操作说明",
+    desc: "急停开关仅安装于外形尺寸大于485×271×310的充电机型号。",
+    operation: [
+      "紧急情况：需要立即停止充电时，按下红色急停按钮",
+      "复位方法：急停按钮按下后不会自动恢复，需顺时针旋转红色按钮使其弹出后才能正常上电",
+      "注意事项：急停开关用于紧急停止操作，避免异常触电或火灾；正常使用时请勿操作此按钮，以免造成不必要的重复操作"
+    ]
+  },
+
   // ===== 正常工作条件 =====
   workingConditions: {
     title: "正常工作条件",
@@ -185,17 +360,31 @@ const KNOWLEDGE_BASE = {
     formula: {
       inputPower: "输入功率 Pin(KVA)、输入电流 Iin(A)、输出最大电压 Ue(V)、输出额定电流 Ie(A)",
       singlePhase: "单相/两相 Pin = Ie×Ue / 0.9 / 1000",
-      threePhase: "三相 Pin = Ie×Ue / 0.93 / 1000（D60V/A规格为0.87）",
+      threePhase: "三相 Pin = Ie×Ue / η / 1000",
+      powerCoefficients: "不同模块功率系数η：D57.5/200、D60V/100A、D60V/150A、D60V/200A、D90V/200A、D100V/140A、D100V/150A等 η=0.87；D93.5V/200A、D100V/80A、D100V/100A、D100V/200A、D120V/250A等 η=0.93",
       current: "Iin = Pin×1000 / Uin（单相）；Iin = Pin×1000 / (√3 × Uin)（三相）",
-      example: "例：D100V/200A 三相380V：Ie=200A、Ue=100V、Uin=380V，Pin=200×100÷0.93÷1000=21.5kW，Iin=21.5×1000÷380÷√3=32.7A"
+      example: "例：D100V/200A 三相380V：Ie=200A、Ue=100V、Uin=380V、η=0.93，Pin=200×100÷0.93÷1000=21.5kVA，Iin=21.5×1000÷380÷√3=32.7A"
     },
     note: "特殊规格可定制。未列入表内的充电机输入电参数可按上述公式计算。",
     models: [
+      { spec: "E29.2V/80A", input: "单相 220V", power: "2.6kVA", current: "11.8A", maxCurrent: "80A", maxVoltage: "29.2V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
+      { spec: "E30V/80A", input: "单相 220V", power: "2.7kVA", current: "12.1A", maxCurrent: "80A", maxVoltage: "30V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
       { spec: "E30V/100A", input: "单相 220V", power: "3.3kVA", current: "15.2A", maxCurrent: "100A", maxVoltage: "30V", weight: "17kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
-      { spec: "D60V/100A", input: "三相 380V", power: "6.9kVA", current: "10.5A", maxCurrent: "100A", maxVoltage: "60V", weight: "36kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-      { spec: "D60V/200A", input: "三相 380V", power: "13.8kVA", current: "21.0A", maxCurrent: "200A", maxVoltage: "60V", weight: "48kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-      { spec: "D100V/100A", input: "三相 380V", power: "10.8kVA", current: "16.3A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
-      { spec: "D100V/200A", input: "三相 380V", power: "21.5kVA", current: "32.7A", maxCurrent: "200A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "625×371×394" },
+      { spec: "E60V/50A", input: "单相 220V", power: "3.3kVA", current: "15.2A", maxCurrent: "50A", maxVoltage: "60V", weight: "16kg", comm: "CAN", ip: "IP21", size: "485×271×310" },
+      { spec: "E100V/100A", input: "单相 220V", power: "10.8kVA", current: "48.9A", maxCurrent: "100A", maxVoltage: "100V", weight: "35kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D30V/200A", input: "三相 380V", power: "6.7kVA", current: "15.2A", maxCurrent: "200A", maxVoltage: "30V", weight: "35kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D57.5V/200A", input: "三相 380V", power: "13.2kVA", current: "20.1A", maxCurrent: "200A", maxVoltage: "57.5V", weight: "48kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D60V/100A", input: "三相 380V", power: "6.9kVA", current: "10.5A", maxCurrent: "100A", maxVoltage: "60V", weight: "36kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D60V/150A", input: "三相 380V", power: "10.3kVA", current: "15.7A", maxCurrent: "150A", maxVoltage: "60V", weight: "38kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D60V/200A", input: "三相 380V", power: "13.8kVA", current: "21.0A", maxCurrent: "200A", maxVoltage: "60V", weight: "48kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D90V/200A", input: "三相 380V", power: "20.7kVA", current: "31.4A", maxCurrent: "200A", maxVoltage: "90V", weight: "44kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D93.5V/200A", input: "三相 380V", power: "20.1kVA", current: "30.6A", maxCurrent: "200A", maxVoltage: "93.5V", weight: "44kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/65A", input: "三相 380V", power: "7.0kVA", current: "10.6A", maxCurrent: "65A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/80A", input: "三相 380V", power: "8.6kVA", current: "13.1A", maxCurrent: "80A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/100A", input: "三相 380V", power: "10.8kVA", current: "16.3A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/100A(400V)", input: "三相 400V", power: "10.8kVA", current: "15.5A", maxCurrent: "100A", maxVoltage: "100V", weight: "37kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/140A", input: "三相 380V", power: "16.1kVA", current: "24.4A", maxCurrent: "140A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
+      { spec: "D100V/200A", input: "三相 380V", power: "21.5kVA", current: "32.7A", maxCurrent: "200A", maxVoltage: "100V", weight: "50kg", comm: "CAN", ip: "IP21", size: "650×371×394" },
       { spec: "D120V/250A", input: "三相 380V", power: "32.3kVA", current: "49.0A", maxCurrent: "250A", maxVoltage: "120V", weight: "125kg", comm: "CAN", ip: "IP21", size: "809×500×1030" }
     ]
   },
@@ -313,7 +502,8 @@ const KNOWLEDGE_BASE = {
         "x=2表示模块工作不正常，查看模块工作代码确定具体故障",
         "观察模块指示灯：红灯表示故障，检查风扇是否运转",
         "检查交流接触器下方三相380V是否缺相",
-        "若模块亮红灯且供电正常，则模块损坏需更换"
+        "若模块亮红灯且供电正常，则模块损坏需更换",
+        "检查辅助电源板输出是否异常（可能导致主控板无法识别模块）"
       ],
       severity: "高",
       images: ["moduleStatus", "powerSupply"]
@@ -1082,13 +1272,102 @@ const KNOWLEDGE_BASE = {
       question: "急停开关处理",
       answer: "急停开关检查：",
       steps: [
-        "找到面板上的红色急停按钮",
-        "若按钮处于按下状态，顺时针旋转释放",
-        "重新上电观察数码管是否恢复显示",
-        "急停开关锁死会导致整机断电"
+        "找到面板上的红色急停按钮（仅安装于外形尺寸大于485×271×310的机型）",
+        "紧急情况：需要立即停止充电时，按下红色急停按钮",
+        "复位方法：急停按钮按下后不会自动恢复，需顺时针旋转红色按钮使其弹出后才能正常上电",
+        "急停开关用于紧急停止，避免异常触电或火灾；正常使用时请勿操作此按钮",
+        "急停开关锁死会导致整机断电，E系列小机型（485×271×310）无急停按钮"
       ],
       relatedCodes: [],
       images: ["externalParts"]
+    },
+    {
+      keywords: ["系统框图", "架构", "通讯架构", "CAN总线", "BMS通讯", "上位机", "功率模块并联"],
+      question: "CZC7EI充电机系统架构是怎样的？",
+      answer: "充电机系统框图说明：",
+      steps: [
+        "上位机主控板是核心控制器，接收电池BMS请求并调度功率模块",
+        "功率模块1~4（10kW或3.3kW）可多模块并联，受主控板调度输出",
+        "电池BMS通过CAN总线向充电机发送充电请求（电压、电流、SOC）",
+        "2路CAN通讯：一路与电池BMS通讯，一路内部模块间通讯",
+        "数码管实时显示电压、电流、容量、时间、SOC、充电阶段等",
+        "直流输出经直流接触器控制通断，连接电池组"
+      ],
+      relatedCodes: [],
+      images: ["systemBlockDiagram"]
+    },
+    {
+      keywords: ["电路原理", "辅助电源", "控制板原理", "电气原理图", "电路设计", "5V", "12V", "7.5V"],
+      question: "CZC7EI电路设计原理",
+      answer: "充电机电路设计原理：",
+      steps: [
+        "【辅助电源】输入整流滤波→辅助电源输出→主路5V、12V输出和7.5V输出",
+        "【控制板】包含单片机、拨码开关、按键、供电电源、控制继电器",
+        "【控制板】2路CAN通讯、CC1连接确认、数码管和指示灯显示",
+        "【D系列电气】断路器→交流接触器→10kW功率模块→直流接触器→输出端",
+        "【E系列电气】断路器→3.3kW功率模块→直流接触器→输出端",
+        "拨码开关设置错误会导致充电异常，修改前请联系技术支持"
+      ],
+      relatedCodes: [],
+      images: ["auxPowerCircuit", "controlBoardCircuit", "dCircuitDiagram", "eCircuitDiagram"]
+    },
+    {
+      keywords: ["售后维修", "维修检测", "检测流程", "从左到右", "AC接触器检测", "变压器检测", "开关电源检测", "维修PPT"],
+      question: "售后维修检测流程",
+      answer: "充电机上电、连接电池后，从左到右依次检测（从AC接触器到控制板）：",
+      steps: [
+        "【1. AC接触器】上方L1/L2/L3两两之间AC380V，下方T1/T2/T3两两之间AC380V",
+        "【2. 变压器】1~2端子AC220V，1~3端子AC380V",
+        "【3. 开关电源】L~N端子AC220V（输入），+V~-V端子DC12V（输出）",
+        "【4. 控制板供电】检测3组供电线缆：DC5V、7.9V、12V（每组2根线缆）",
+        "【判断原则】当有一步异常时，表明是本身故障或上一步器件故障，按顺序排查"
+      ],
+      relatedCodes: [],
+      images: ["eSeriesInternal", "dSeriesInternal"]
+    },
+    {
+      keywords: ["检测端子", "端子排线", "S+S-", "A+A-", "CC1短接", "信号端子", "接线检测"],
+      question: "检测端子排线检测方法",
+      answer: "充电机信号端子检测：",
+      steps: [
+        "CAN通讯信号：S+ S-端子，充电机与电池BMS通讯",
+        "开关电源输出：A+ A-端子，上电测电压DC12V，关机测电阻",
+        "REMA连接确认：CC1短接PE，确认充电枪连接",
+        "S+~S-电阻：接电池约60Ω，断开电池约120Ω",
+        "A+~A-电压：上电约DC12V",
+        "CC1~PE：短接确认充电枪到位"
+      ],
+      relatedCodes: ["E-08"],
+      images: ["detectionTerminal", "canSignal"]
+    },
+    {
+      keywords: ["E系列内部结构", "D系列内部结构", "3.3kW内部", "10kW内部", "机型内部区别"],
+      question: "E系列和D系列内部结构区别",
+      answer: "CZC7EI-E和CZC7EI-D内部结构对比：",
+      steps: [
+        "E系列（3.3kW模块）：体积小（485×271×310），无急停按钮",
+        "E系列内部：电源模块→主控板→辅助电源板→开关电源→直流接触器→断路器→输出保险丝→信号端子",
+        "D系列（10kW模块）：体积大（650×371×394以上），配有急停按钮",
+        "D系列内部：多模块并联布局，含交流接触器（控制主电路）、变压器等额外组件",
+        "D系列3模块机型更大更重（30kW总功率），散热要求更高",
+        "所有系列都包含：主控板、辅助电源板、开关电源、直流接触器、断路器+脱扣器、输出保险丝、信号端子"
+      ],
+      relatedCodes: [],
+      images: ["eSeriesInternal", "dSeriesInternal", "dSeriesAppearance"]
+    },
+    {
+      keywords: ["DIP开关", "拨码开关", "拨码设置", "参数设置", "充电曲线选择"],
+      question: "主控板DIP拨码开关设置",
+      answer: "CZC7EI主控板拨码开关用于设置充电机参数：",
+      steps: [
+        "拨码开关用于设置：充电曲线选择、通讯协议、模块数量等",
+        "具体设置值请参考设备铭牌参数和出厂配置",
+        "拨码开关设置错误会导致充电异常",
+        "修改拨码开关前务必联系上海施能技术支持确认正确配置",
+        "技术支持电话：021-58228080，应急：+8613917175637"
+      ],
+      relatedCodes: [],
+      images: []
     }
   ]
 };

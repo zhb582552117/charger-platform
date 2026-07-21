@@ -848,6 +848,7 @@ const kbSections = {
         <tr><td style="font-weight:600;">技术支持</td><td>${KNOWLEDGE_BASE.contact.technicalSupport}</td></tr>
         <tr><td style="font-weight:600;">售后服务</td><td>${KNOWLEDGE_BASE.contact.afterSales}</td></tr>
         <tr><td style="font-weight:600;">应急/投诉</td><td>${KNOWLEDGE_BASE.contact.emergency}</td></tr>
+        <tr><td style="font-weight:600;">邮箱</td><td>${KNOWLEDGE_BASE.contact.email}</td></tr>
         <tr><td style="font-weight:600;">网址</td><td>${KNOWLEDGE_BASE.contact.website}</td></tr>
       </table>
     </div>

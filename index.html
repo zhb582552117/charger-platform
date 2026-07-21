@@ -22,6 +22,7 @@
       <div class="nav-tab" data-page="fault" onclick="switchPage('fault')">🔧 故障代码</div>
       <div class="nav-tab" data-page="wizard" onclick="switchPage('wizard')">📋 排查向导</div>
       <div class="nav-tab" data-page="kb" onclick="switchPage('kb')">📚 知识库</div>
+      <div class="nav-tab" data-page="videoDiag" onclick="switchPage('videoDiag')">📹 视频诊断</div>
       <button id="langToggle" class="lang-toggle-btn" onclick="switchLanguage(currentLang === 'zh' ? 'en' : 'zh')">EN</button>
     </div>
   </nav>
@@ -157,10 +158,55 @@
       </div>
     </div>
 
+    <!-- ===== 视频诊断页面 ===== -->
+    <div class="page" data-page="videoDiag">
+      <div class="video-diag-page">
+        <div class="video-diag-hero">
+          <h1>📹 充电机视频故障诊断</h1>
+          <p>上传充电机面板视频，AI自动分析数码管显示和LED指示灯状态，快速诊断故障</p>
+        </div>
+
+        <!-- 上传区域 -->
+        <div class="video-drop-zone" id="videoDropZone">
+          <div class="drop-icon">📹</div>
+          <p class="drop-text">点击或拖拽视频文件到此处</p>
+          <p class="drop-hint">支持 MP4 / WebM / MOV 格式，建议时长 10-60 秒</p>
+          <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
+        </div>
+
+        <!-- 视频预览和控制 -->
+        <div class="video-controls" id="videoControls" style="display:none;">
+          <video id="videoPreview" controls playsinline style="display:none;max-width:100%;border-radius:12px;background:#000;"></video>
+          <div id="videoInfo" class="video-info" style="display:none;"></div>
+          <div class="video-btn-group">
+            <button class="btn btn-primary" id="videoAnalyzeBtn" disabled>🔍 开始分析</button>
+            <button class="btn btn-secondary" id="videoResetBtn" disabled>🔄 重新上传</button>
+          </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="video-progress-container" style="display:none;">
+          <progress id="videoProgress" value="0" max="100" style="width:100%;height:8px;border-radius:4px;"></progress>
+          <p id="videoProgressText" style="display:none;text-align:center;margin-top:8px;color:var(--gray-600);font-size:14px;"></p>
+        </div>
+
+        <!-- 帧缩略图 -->
+        <div class="video-frames-section">
+          <h3 id="videoFramesTitle" style="display:none;">🎞️ 提取的关键帧</h3>
+          <div class="video-frames-grid" id="videoFrames"></div>
+        </div>
+
+        <!-- 诊断结果 -->
+        <div class="video-results-section" id="videoResults"></div>
+      </div>
+    </div>
+
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="js/knowledge-base.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/video-diagnosis.js"></script>
 </body>
 </html>

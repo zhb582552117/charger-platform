@@ -1559,6 +1559,34 @@ body {
   cursor: not-allowed;
 }
 
+/* 分析中加载动画 */
+@keyframes diag-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.video-diag-page .btn-primary:disabled:not(.btn-no-spin) {
+  position: relative;
+  opacity: 0.8;
+}
+
+.video-progress-container {
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+}
+
+#videoProgressText {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--primary);
+}
+
+.video-diag-page .btn-secondary:disabled {
+  opacity: 0.4;
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
   .video-frames-grid {

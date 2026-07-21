@@ -923,6 +923,155 @@ const kbSections = {
       </p>
     </div>
   `;
+  },
+
+  // ===== 新增：系统架构 =====
+  systemArch: () => {
+    const kb = getKB();
+    const arch = kb.systemArchitecture;
+    return `
+    <h2>${tk('systemArchTitle')}</h2>
+    <p class="kb-subtitle">${tk('systemArchSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${arch.desc}</p>
+      <table class="info-table">
+        <thead><tr><th style="width:180px;">${tk('systemArchComponentLabel')}</th><th>${tk('systemArchDescLabel')}</th></tr></thead>
+        <tbody>
+          ${arch.components.map(c => `
+            <tr><td style="font-weight:600;color:var(--primary);">${c.name}</td><td>${c.desc}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 系统框图</h3>
+      ${renderImageGallery([arch.image])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：电路设计原理 =====
+  circuit: () => {
+    const kb = getKB();
+    const cd = kb.circuitDesign;
+    return `
+    <h2>${tk('circuitDesignTitle')}</h2>
+    <p class="kb-subtitle">${tk('circuitDesignSubtitle')}</p>
+
+    ${cd.sections.map(s => `
+    <div class="kb-section">
+      <h3>${s.name}</h3>
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${s.desc}</p>
+      ${s.image ? renderImageGallery([s.image]) : ''}
+    </div>
+    `).join('')}
+  `;
+  },
+
+  // ===== 新增：DIP拨码开关 =====
+  dipSwitch: () => {
+    const kb = getKB();
+    const ds = kb.dipSwitchSettings;
+    return `
+    <h2>${tk('dipSwitchTitle')}</h2>
+    <p class="kb-subtitle">${tk('dipSwitchSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${ds.desc}</p>
+      <div class="tp-note">${tk('dipSwitchNote')}</div>
+    </div>
+  `;
+  },
+
+  // ===== 新增：售后维修检测流程 =====
+  maintenance: () => {
+    const kb = getKB();
+    const md = kb.maintenanceDetection;
+    return `
+    <h2>${tk('maintenanceDetectionTitle')}</h2>
+    <p class="kb-subtitle">${tk('maintenanceDetectionSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${md.desc}</p>
+      ${md.steps.map(s => `
+      <h4 style="margin-top:16px;color:var(--primary);">🔧 ${s.component}</h4>
+      <table class="info-table">
+        <thead><tr><th>${tk('maintenanceTestPointLabel')}</th><th>${tk('maintenanceNormalLabel')}</th><th>${tk('maintenanceNoteLabel')}</th></tr></thead>
+        <tbody>
+          ${s.testPoints.map(tp => `
+            <tr><td>${tp.point}</td><td class="mono">${tp.normal}</td><td>${tp.note}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+      `).join('')}
+      <div class="tp-note">${tk('maintenanceNote')}</div>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 维修检测参考图</h3>
+      ${renderImageGallery([md.image, 'detectionTerminal', 'electricDiagram'])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：检测端子排线 =====
+  terminal: () => {
+    const kb = getKB();
+    const dt = kb.detectionTerminals;
+    return `
+    <h2>${tk('detectionTerminalTitle')}</h2>
+    <p class="kb-subtitle">${tk('detectionTerminalSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${dt.desc}</p>
+      <table class="info-table">
+        <thead><tr><th style="width:180px;">${tk('terminalNameLabel')}</th><th>${tk('terminalIdLabel')}</th><th>${tk('terminalDescLabel')}</th></tr></thead>
+        <tbody>
+          ${dt.items.map(item => `
+            <tr><td style="font-weight:600;color:var(--primary);">${item.name}</td><td class="mono">${item.terminals}</td><td>${item.desc}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h4 style="color:var(--primary);">📏 正常值参考</h4>
+      <ul style="font-size:14px;line-height:2;">
+        <li><strong>${dt.resistance.sPlusMinus}</strong></li>
+        <li><strong>${dt.resistance.aPlusMinus}</strong></li>
+        <li><strong>${dt.resistance.cc1PE}</strong></li>
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 端子排线参考图</h3>
+      ${renderImageGallery([dt.image, 'canSignal'])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：急停开关 =====
+  emergencyStop: () => {
+    const kb = getKB();
+    const es = kb.emergencyStop;
+    return `
+    <h2>${tk('emergencyStopTitle')}</h2>
+    <p class="kb-subtitle">${tk('emergencyStopSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${es.desc}</p>
+      <ul style="font-size:14px;line-height:2;">
+        ${es.operation.map(op => `<li>${op}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 急停开关位置</h3>
+      ${renderImageGallery(['externalParts'])}
+    </div>
+  `;
   }
 };
 
@@ -938,7 +1087,7 @@ function switchKbSection(section) {
 // ===== Update KB sidebar labels =====
 function updateKbSidebar() {
   const navItems = document.querySelectorAll('.kb-nav-item');
-  const sectionKeys = ['kbNavProduct', 'kbNavSpecs', 'kbNavInstallation', 'kbNavPanel', 'kbNavDetection', 'kbNavTestpoints', 'kbNavModules', 'kbNavTools'];
+  const sectionKeys = ['kbNavProduct', 'kbNavSpecs', 'kbNavInstallation', 'kbNavPanel', 'kbNavDetection', 'kbNavTestpoints', 'kbNavModules', 'kbNavSystemArch', 'kbNavCircuit', 'kbNavDipSwitch', 'kbNavMaintenance', 'kbNavTerminal', 'kbNavEmergencyStop', 'kbNavTools'];
   navItems.forEach((item, i) => {
     if (sectionKeys[i]) item.textContent = tk(sectionKeys[i]);
   });

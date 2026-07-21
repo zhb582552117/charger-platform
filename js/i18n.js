@@ -14,7 +14,15 @@ const I18N = {
       navFault: "🔧 故障代码",
       navWizard: "📋 排查向导",
       navKb: "📚 知识库",
+      navVideoDiag: "📹 视频诊断",
       langToggle: "EN",
+      videoDiagHeroTitle: "📹 充电机视频故障诊断",
+      videoDiagHeroDesc: "上传充电机面板视频，AI自动分析数码管显示和LED指示灯状态，快速诊断故障",
+      videoDiagDropText: "点击或拖拽视频文件到此处",
+      videoDiagDropHint: "支持 MP4 / WebM / MOV 格式，建议时长 10-60 秒",
+      videoDiagAnalyzeBtn: "🔍 开始分析",
+      videoDiagResetBtn: "🔄 重新上传",
+      videoDiagFramesTitle: "🎞️ 提取的关键帧",
       chatWelcomeTitle: "👋 您好，我是充电机智能助手",
       chatWelcomeDesc: "基于 CZC7EI 系列充电机培训资料，我可以帮您排查故障、查询代码、指导维修",
       chatPlaceholder: "输入故障代码（如 E-05）或描述故障现象，按回车发送...",
@@ -69,7 +77,15 @@ const I18N = {
       navFault: "🔧 Fault Codes",
       navWizard: "📋 Troubleshooting Wizard",
       navKb: "📚 Knowledge Base",
+      navVideoDiag: "📹 Video Diagnosis",
       langToggle: "中文",
+      videoDiagHeroTitle: "📹 Charger Video Fault Diagnosis",
+      videoDiagHeroDesc: "Upload a video of the charger panel. AI automatically analyzes the digital display and LED indicator status to quickly diagnose faults.",
+      videoDiagDropText: "Click or drag a video file here",
+      videoDiagDropHint: "Supports MP4 / WebM / MOV, recommended duration 10-60 seconds",
+      videoDiagAnalyzeBtn: "🔍 Start Analysis",
+      videoDiagResetBtn: "🔄 Re-upload",
+      videoDiagFramesTitle: "🎞️ Extracted Key Frames",
       chatWelcomeTitle: "👋 Hello, I'm your charger diagnostic assistant",
       chatWelcomeDesc: "Based on CZC7EI series charger training materials, I can help you diagnose faults, query codes, and guide repairs",
       chatPlaceholder: "Enter fault code (e.g. E-05) or describe the fault symptom, press Enter to send...",
@@ -1205,8 +1221,8 @@ function switchLanguage(lang) {
   // Update nav tabs
   document.querySelectorAll('.nav-tab').forEach(tab => {
     const page = tab.dataset.page;
-    const keyMap = { chat: 'navChat', visual: 'navVisual', fault: 'navFault', wizard: 'navWizard', kb: 'navKb' };
-    tab.textContent = t(keyMap[page]);
+    const keyMap = { chat: 'navChat', visual: 'navVisual', fault: 'navFault', wizard: 'navWizard', kb: 'navKb', videoDiag: 'navVideoDiag' };
+    if (keyMap[page]) tab.textContent = t(keyMap[page]);
   });
 
   // Update language toggle button
@@ -1247,10 +1263,37 @@ function switchLanguage(lang) {
   // Re-render visual page
   renderVisualPage();
 
+  // Update video diagnosis page text
+  updateVideoDiagText();
+
   // Re-render current KB section
   const activeSection = document.querySelector('.kb-nav-item.active');
   if (activeSection) switchKbSection(activeSection.dataset.section);
   else switchKbSection('product');
+}
+
+// ===== 更新视频诊断页面文本 =====
+function updateVideoDiagText() {
+  const heroTitle = document.querySelector('.video-diag-hero h1');
+  const heroDesc = document.querySelector('.video-diag-hero p');
+  const dropText = document.querySelector('.drop-text');
+  const dropHint = document.querySelector('.drop-hint');
+  const analyzeBtn = document.getElementById('videoAnalyzeBtn');
+  const resetBtn = document.getElementById('videoResetBtn');
+  const framesTitle = document.getElementById('videoFramesTitle');
+
+  if (heroTitle) heroTitle.textContent = t('videoDiagHeroTitle');
+  if (heroDesc) heroDesc.textContent = t('videoDiagHeroDesc');
+  if (dropText) dropText.textContent = t('videoDiagDropText');
+  if (dropHint) dropHint.textContent = t('videoDiagDropHint');
+  if (analyzeBtn) analyzeBtn.textContent = t('videoDiagAnalyzeBtn');
+  if (resetBtn) resetBtn.textContent = t('videoDiagResetBtn');
+  if (framesTitle) framesTitle.textContent = t('videoDiagFramesTitle');
+
+  // 如果已有分析结果，重新渲染
+  if (videoDiagState && videoDiagState.analysisResults.length > 0 && !videoDiagState.isAnalyzing) {
+    renderDiagnosisReport();
+  }
 }
 
 // ===== 快速提问渲染 =====

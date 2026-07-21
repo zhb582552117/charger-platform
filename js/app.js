@@ -577,9 +577,98 @@ const kbSections = {
     </div>
   `,
 
+  specs: () => `
+    <h2>主要技术参数</h2>
+    <p class="kb-subtitle">CZC7EI系列智能充电机规格表（特殊规格可定制）</p>
+
+    <div class="kb-section">
+      <h3>📐 功率与电流计算公式</h3>
+      <table class="info-table">
+        <tr><td style="width:120px;font-weight:600;">输入功率</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.inputPower}</td></tr>
+        <tr><td style="font-weight:600;">单相/两相</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.singlePhase}</td></tr>
+        <tr><td style="font-weight:600;">三相</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.threePhase}</td></tr>
+        <tr><td style="font-weight:600;">输入电流</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.current}</td></tr>
+        <tr><td style="font-weight:600;">计算示例</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.example}</td></tr>
+      </table>
+      <div class="tp-note">💡 ${KNOWLEDGE_BASE.technicalSpecs.note}</div>
+    </div>
+
+    <div class="kb-section">
+      <h3>📋 常规规格表</h3>
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>规格</th><th>额定输入</th><th>功率</th><th>输入电流</th>
+            <th>最大输出电流</th><th>最大输出电压</th><th>净重</th><th>通讯</th><th>防护</th><th>外形尺寸</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${KNOWLEDGE_BASE.technicalSpecs.models.map(m => `
+            <tr>
+              <td style="font-weight:600;">${m.spec}</td>
+              <td>${m.input}</td>
+              <td>${m.power}</td>
+              <td>${m.current}</td>
+              <td>${m.maxCurrent}</td>
+              <td>${m.maxVoltage}</td>
+              <td>${m.weight}</td>
+              <td>${m.comm}</td>
+              <td>${m.ip}</td>
+              <td class="mono">${m.size}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>🌡️ 正常工作条件</h3>
+      <ul class="feature-list">
+        ${KNOWLEDGE_BASE.workingConditions.conditions.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+      <div class="tp-note">⚠️ ${KNOWLEDGE_BASE.workingConditions.warning}</div>
+    </div>
+  `,
+
+  installation: () => `
+    <h2>安装要求</h2>
+    <p class="kb-subtitle">CZC7EI充电机安装场所布置与接线要求</p>
+
+    <div class="kb-section">
+      <h3>🏠 充电场所布置要求</h3>
+      ${renderImageGallery(['installationLayout'])}
+      <ul class="feature-list" style="margin-top:16px;">
+        ${KNOWLEDGE_BASE.installation.site.requirements.map(r => `<li>${r}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>🔌 输入/输出线连接要求</h3>
+      <ul class="feature-list">
+        ${KNOWLEDGE_BASE.installation.wiring.requirements.map(r => `<li>${r}</li>`).join('')}
+      </ul>
+      <div class="tp-note">⚠️ ${KNOWLEDGE_BASE.installation.warning}</div>
+    </div>
+  `,
+
   panel: () => `
     <h2>面板操作指南</h2>
     <p class="kb-subtitle">CZC7EI充电机面板按键、指示灯及显示界面说明</p>
+
+    <div class="kb-section">
+      <h3>⚡ 上电显示流程</h3>
+      <div style="padding:16px;background:var(--gray-100);border-radius:12px;margin-bottom:12px;">
+        <p style="font-weight:600;margin-bottom:12px;">${KNOWLEDGE_BASE.panelGuide.bootSequence.desc}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          ${KNOWLEDGE_BASE.panelGuide.bootSequence.steps.map((s, i) => `
+            <span style="padding:6px 12px;background:#fff;border-radius:8px;font-size:14px;color:var(--gray-700);border:1px solid var(--gray-200);">
+              ${i > 0 ? '→' : ''} ${s}
+            </span>
+          `).join('')}
+        </div>
+        <p style="font-size:13px;color:var(--gray-500);">${KNOWLEDGE_BASE.panelGuide.bootSequence.note}</p>
+      </div>
+    </div>
 
     <div class="kb-section">
       <h3>🔘 按键功能</h3>
@@ -746,7 +835,22 @@ const kbSections = {
 
   tools: () => `
     <h2>检修工具与售后</h2>
-    <p class="kb-subtitle">检修所需工具及配件售后政策</p>
+    <p class="kb-subtitle">检修所需工具、售后政策及联系方式</p>
+
+    <div class="kb-section">
+      <h3>🏢 售后联系信息</h3>
+      <table class="info-table">
+        <tr><td style="width:120px;font-weight:600;">公司名称</td><td>${KNOWLEDGE_BASE.contact.company}</td></tr>
+        <tr><td style="font-weight:600;">地址</td><td>${KNOWLEDGE_BASE.contact.address}</td></tr>
+        <tr><td style="font-weight:600;">邮编</td><td>${KNOWLEDGE_BASE.contact.zipCode}</td></tr>
+        <tr><td style="font-weight:600;">销售</td><td>${KNOWLEDGE_BASE.contact.sales.join(' / ')}</td></tr>
+        <tr><td style="font-weight:600;">传真</td><td>${KNOWLEDGE_BASE.contact.fax}</td></tr>
+        <tr><td style="font-weight:600;">技术支持</td><td>${KNOWLEDGE_BASE.contact.technicalSupport}</td></tr>
+        <tr><td style="font-weight:600;">售后服务</td><td>${KNOWLEDGE_BASE.contact.afterSales}</td></tr>
+        <tr><td style="font-weight:600;">应急/投诉</td><td>${KNOWLEDGE_BASE.contact.emergency}</td></tr>
+        <tr><td style="font-weight:600;">网址</td><td>${KNOWLEDGE_BASE.contact.website}</td></tr>
+      </table>
+    </div>
 
     <div class="kb-section">
       <h3>🖼️ 整机结构与关键部件</h3>

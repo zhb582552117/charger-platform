@@ -669,8 +669,9 @@ const KNOWLEDGE_BASE = {
     sales: ["021-58224888", "021-58222666"],
     fax: "021-58222888",
     technicalSupport: "021-58228080",
-    emergency: "13901854050",
+    emergency: "+8613917175637",
     afterSales: "021-58221666",
+    email: "zhoubin@shineng.com",
     website: "www.shineng.com"
   },
 
@@ -1027,7 +1028,8 @@ const KNOWLEDGE_BASE = {
         "销售：021-58224888、021-58222666",
         "技术支持：021-58228080",
         "售后服务：021-58221666",
-        "应急/投诉：13901854050",
+        "应急/投诉：+8613917175637",
+        "邮箱：zhoubin@shineng.com",
         "传真：021-58222888",
         "网址：www.shineng.com"
       ],

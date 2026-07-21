@@ -1,6 +1,7 @@
 /**
  * CZC7EI 充电机智能排查平台 - 视频故障诊断模块
  * 纯浏览器端实现：视频帧提取 + LED颜色分析 + Tesseract.js OCR + 知识库匹配
+ * v2.0 - 修复进度条不显示、帧标题不显示、seek超时、OCR加载检测等问题
  */
 
 // ===== 视频诊断状态 =====
@@ -84,6 +85,14 @@ function handleVideoFile(file) {
     `;
   };
 
+  // 视频加载失败处理
+  video.onerror = () => {
+    alert(currentLang === 'en'
+      ? 'Failed to load video. The format may not be supported by your browser. Please try MP4 (H.264) or WebM format.'
+      : '视频加载失败，可能是格式不被浏览器支持。请尝试 MP4 (H.264) 或 WebM 格式。');
+    resetVideoDiag();
+  };
+
   document.getElementById('videoDropZone').style.display = 'none';
   document.getElementById('videoControls').style.display = 'flex';
 }
@@ -98,134 +107,206 @@ async function startVideoAnalysis() {
   videoDiagState.ledStatus = 'unknown';
   videoDiagState.progress = 0;
 
+  const analyzeBtn = document.getElementById('videoAnalyzeBtn');
+  const resetBtn = document.getElementById('videoResetBtn');
   const video = document.getElementById('videoPreview');
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  // 设置canvas尺寸（缩小以加速处理）
-  const targetWidth = 640;
-  const scale = targetWidth / video.videoWidth;
-  canvas.width = targetWidth;
-  canvas.height = Math.round(video.videoHeight * scale);
-
+  const progressContainer = document.querySelector('.video-progress-container');
   const progressBar = document.getElementById('videoProgress');
   const progressText = document.getElementById('videoProgressText');
+  const framesTitle = document.getElementById('videoFramesTitle');
   const framesContainer = document.getElementById('videoFrames');
   const resultsContainer = document.getElementById('videoResults');
 
+  // 禁用按钮，显示分析中状态
+  analyzeBtn.disabled = true;
+  analyzeBtn.innerHTML = currentLang === 'en' ? '⏳ Analyzing...' : '⏳ 分析中...';
+  resetBtn.disabled = true;
+
+  // [BUG FIX] 显示进度条容器（之前只显示了内部元素，容器本身display:none未移除）
+  if (progressContainer) progressContainer.style.display = 'block';
   progressBar.style.display = 'block';
   progressText.style.display = 'block';
+  progressBar.value = 0;
+  progressText.textContent = vdText('analyzingProgress') + ' 0%';
+
+  // [BUG FIX] 显示帧标题
+  if (framesTitle) framesTitle.style.display = 'block';
   framesContainer.innerHTML = '';
   resultsContainer.innerHTML = '';
 
-  // 每隔1秒提取一帧
-  const interval = 1.0;
-  const totalFrames = Math.floor(videoDiagState.videoDuration / interval);
-
-  for (let i = 0; i <= totalFrames; i++) {
-    const time = Math.min(i * interval, videoDiagState.videoDuration - 0.1);
-
-    // 更新进度
-    videoDiagState.progress = Math.round((i / totalFrames) * 100);
-    progressBar.value = videoDiagState.progress;
-    progressText.textContent = vdText('analyzingProgress') + ` ${videoDiagState.progress}%`;
-
-    // 跳转到指定时间
-    await seekToTime(video, time);
-
-    // 提取帧到canvas
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // 分析LED颜色
-    const ledResult = analyzeLEDColors(ctx, canvas.width, canvas.height);
-
-    // 保存帧（每隔几帧保存一次缩略图以节省内存）
-    let frameData = null;
-    if (i % 2 === 0 || ledResult.redRatio > 0.01 || ledResult.greenRatio > 0.01) {
-      frameData = canvas.toDataURL('image/jpeg', 0.6);
+  try {
+    // 检查视频是否已加载
+    if (!video.videoWidth || !video.videoHeight) {
+      throw new Error(currentLang === 'en' ? 'Video not fully loaded yet, please wait and try again' : '视频尚未完全加载，请稍等后重试');
     }
 
-    const frameInfo = {
-      index: i,
-      time: time,
-      led: ledResult,
-      imageData: frameData
-    };
-    videoDiagState.analysisResults.push(frameInfo);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-    // 更新LED状态
-    if (ledResult.redRatio > 0.02 && videoDiagState.ledStatus !== 'red') {
-      videoDiagState.ledStatus = 'red';
-    } else if (ledResult.greenRatio > 0.02 && videoDiagState.ledStatus === 'unknown') {
-      videoDiagState.ledStatus = 'green';
+    // 设置canvas尺寸（缩小以加速处理）
+    const targetWidth = 640;
+    const scale = targetWidth / video.videoWidth;
+    canvas.width = targetWidth;
+    canvas.height = Math.round(video.videoHeight * scale);
+
+    // 每隔1秒提取一帧
+    const interval = 1.0;
+    const totalFrames = Math.max(1, Math.floor(videoDiagState.videoDuration / interval));
+
+    for (let i = 0; i <= totalFrames; i++) {
+      const time = Math.min(i * interval, Math.max(0, videoDiagState.videoDuration - 0.1));
+
+      // 更新进度
+      videoDiagState.progress = Math.round((i / totalFrames) * 80); // 帧提取占80%
+      progressBar.value = videoDiagState.progress;
+      progressText.textContent = vdText('analyzingProgress') + ` ${videoDiagState.progress}%`;
+
+      // [BUG FIX] 跳转到指定时间（带超时机制，防止seeked事件不触发导致挂起）
+      await seekToTime(video, time);
+
+      // 提取帧到canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 分析LED颜色
+      const ledResult = analyzeLEDColors(ctx, canvas.width, canvas.height);
+
+      // 保存帧（每隔几帧保存一次缩略图以节省内存）
+      let frameData = null;
+      if (i % 2 === 0 || ledResult.redRatio > 0.01 || ledResult.greenRatio > 0.01) {
+        frameData = canvas.toDataURL('image/jpeg', 0.6);
+      }
+
+      const frameInfo = {
+        index: i,
+        time: time,
+        led: ledResult,
+        imageData: frameData
+      };
+      videoDiagState.analysisResults.push(frameInfo);
+
+      // 更新LED状态
+      if (ledResult.redRatio > 0.02 && videoDiagState.ledStatus !== 'red') {
+        videoDiagState.ledStatus = 'red';
+      } else if (ledResult.greenRatio > 0.02 && videoDiagState.ledStatus === 'unknown') {
+        videoDiagState.ledStatus = 'green';
+      }
+
+      // 显示帧缩略图
+      if (frameData) {
+        const frameDiv = document.createElement('div');
+        frameDiv.className = 'video-frame-thumb';
+        const ledColor = ledResult.redRatio > 0.02 ? 'red' : ledResult.greenRatio > 0.02 ? 'green' : 'none';
+        const ledLabel = ledColor === 'red' ? (currentLang === 'en' ? 'Fault LED' : '故障灯') :
+                         ledColor === 'green' ? (currentLang === 'en' ? 'Normal LED' : '正常灯') : '';
+        frameDiv.innerHTML = `
+          <img src="${frameData}" alt="Frame ${i}" loading="lazy">
+          <div class="frame-info">
+            <span class="frame-time">${time.toFixed(1)}s</span>
+            ${ledLabel ? `<span class="frame-led led-${ledColor}">${ledLabel}</span>` : ''}
+          </div>
+        `;
+        frameDiv.onclick = () => openLightbox(frameData, `Frame ${i} - ${time.toFixed(1)}s`, ledLabel);
+        framesContainer.appendChild(frameDiv);
+      }
+
+      // 让UI有机会更新
+      await sleep(10);
     }
 
-    // 显示帧缩略图
-    if (frameData) {
-      const frameDiv = document.createElement('div');
-      frameDiv.className = 'video-frame-thumb';
-      const ledColor = ledResult.redRatio > 0.02 ? 'red' : ledResult.greenRatio > 0.02 ? 'green' : 'none';
-      const ledLabel = ledColor === 'red' ? (currentLang === 'en' ? 'Fault LED' : '故障灯') :
-                       ledColor === 'green' ? (currentLang === 'en' ? 'Normal LED' : '正常灯') : '';
-      frameDiv.innerHTML = `
-        <img src="${frameData}" alt="Frame ${i}" loading="lazy">
-        <div class="frame-info">
-          <span class="frame-time">${time.toFixed(1)}s</span>
-          ${ledLabel ? `<span class="frame-led led-${ledColor}">${ledLabel}</span>` : ''}
+    // 对关键帧进行OCR识别（选取红色LED最明显的帧）
+    progressBar.value = 85;
+    progressText.textContent = vdText('ocrProgress');
+
+    const redFrames = videoDiagState.analysisResults
+      .filter(f => f.led.redRatio > 0.01 && f.imageData)
+      .sort((a, b) => b.led.redRatio - a.led.redRatio)
+      .slice(0, 5);
+
+    if (redFrames.length === 0) {
+      // 没有红色LED帧，取中间几帧
+      const mid = Math.floor(videoDiagState.analysisResults.length / 2);
+      const sampleFrames = videoDiagState.analysisResults
+        .filter(f => f.imageData)
+        .slice(Math.max(0, mid - 2), mid + 3);
+      for (const frame of sampleFrames) {
+        await ocrFrame(frame);
+        progressBar.value = Math.min(95, progressBar.value + 2);
+      }
+    } else {
+      for (const frame of redFrames) {
+        await ocrFrame(frame);
+        progressBar.value = Math.min(95, progressBar.value + 2);
+      }
+    }
+
+    // 生成诊断报告
+    videoDiagState.progress = 100;
+    progressBar.value = 100;
+    progressText.textContent = vdText('analysisComplete');
+
+    renderDiagnosisReport();
+
+  } catch (err) {
+    console.error('Video analysis error:', err);
+    progressText.textContent = '';
+    resultsContainer.innerHTML = `
+      <div class="diag-alert diag-alert-danger">
+        <div class="diag-alert-icon">⚠️</div>
+        <div>
+          <h3>${currentLang === 'en' ? 'Analysis Error' : '分析出错'}</h3>
+          <p>${escapeHtml(err.message || String(err))}</p>
         </div>
-      `;
-      frameDiv.onclick = () => openLightbox(frameData, `Frame ${i} - ${time.toFixed(1)}s`, ledLabel);
-      framesContainer.appendChild(frameDiv);
-    }
-
-    // 让UI有机会更新
-    await sleep(10);
+      </div>
+    `;
+  } finally {
+    videoDiagState.isAnalyzing = false;
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerHTML = currentLang === 'en' ? '🔍 Start Analysis' : '🔍 开始分析';
+    resetBtn.disabled = false;
   }
-
-  // 对关键帧进行OCR识别（选取红色LED最明显的帧）
-  progressText.textContent = vdText('ocrProgress');
-
-  const redFrames = videoDiagState.analysisResults
-    .filter(f => f.led.redRatio > 0.01 && f.imageData)
-    .sort((a, b) => b.led.redRatio - a.led.redRatio)
-    .slice(0, 5);
-
-  if (redFrames.length === 0) {
-    // 没有红色LED帧，取中间几帧
-    const mid = Math.floor(videoDiagState.analysisResults.length / 2);
-    const sampleFrames = videoDiagState.analysisResults
-      .filter(f => f.imageData)
-      .slice(Math.max(0, mid - 2), mid + 3);
-    for (const frame of sampleFrames) {
-      await ocrFrame(frame);
-    }
-  } else {
-    for (const frame of redFrames) {
-      await ocrFrame(frame);
-    }
-  }
-
-  // 生成诊断报告
-  videoDiagState.progress = 100;
-  progressBar.value = 100;
-  progressText.textContent = vdText('analysisComplete');
-
-  renderDiagnosisReport();
-
-  videoDiagState.isAnalyzing = false;
-  document.getElementById('videoAnalyzeBtn').disabled = true;
-  document.getElementById('videoResetBtn').disabled = false;
 }
 
-// ===== 跳转到指定时间 =====
+// ===== 跳转到指定时间（带超时保护） =====
 function seekToTime(video, time) {
-  return new Promise(resolve => {
-    const onSeeked = () => {
+  return new Promise((resolve) => {
+    let resolved = false;
+
+    const cleanup = () => {
       video.removeEventListener('seeked', onSeeked);
+      clearTimeout(timeoutId);
+    };
+
+    const onSeeked = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
       resolve();
     };
+
+    // [BUG FIX] 超时保护：如果3秒内seeked事件未触发，直接继续
+    const timeoutId = setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve();
+    }, 3000);
+
     video.addEventListener('seeked', onSeeked);
-    video.currentTime = time;
+
+    try {
+      video.currentTime = time;
+      // 如果时间已经是0且设置相同值，可能不会触发seeked
+      if (time === 0 && Math.abs(video.currentTime - 0) < 0.01) {
+        // 已经在0位置，直接resolve
+        resolved = true;
+        cleanup();
+        resolve();
+      }
+    } catch (e) {
+      resolved = true;
+      cleanup();
+      resolve();
+    }
   });
 }
 
@@ -275,7 +356,13 @@ function analyzeLEDColors(ctx, width, height) {
 
 // ===== OCR识别帧 =====
 async function ocrFrame(frame) {
-  if (!frame.imageData || typeof Tesseract === 'undefined') return;
+  if (!frame.imageData) return;
+
+  // [BUG FIX] 检查Tesseract是否已加载
+  if (typeof Tesseract === 'undefined') {
+    console.warn('Tesseract.js not loaded, skipping OCR');
+    return;
+  }
 
   try {
     // 创建临时canvas进行预处理
@@ -482,6 +569,9 @@ function renderDiagnosisReport() {
       </div>
     </div>
   `;
+
+  // 滚动到结果区域
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ===== 手动选择故障代码 =====
@@ -514,15 +604,23 @@ function resetVideoDiag() {
   video.src = '';
   video.style.display = 'none';
 
+  const progressContainer = document.querySelector('.video-progress-container');
+  const framesTitle = document.getElementById('videoFramesTitle');
+
   document.getElementById('videoDropZone').style.display = 'flex';
   document.getElementById('videoControls').style.display = 'none';
   document.getElementById('videoInfo').style.display = 'none';
+  // [BUG FIX] 隐藏进度条容器
+  if (progressContainer) progressContainer.style.display = 'none';
   document.getElementById('videoProgress').style.display = 'none';
   document.getElementById('videoProgressText').style.display = 'none';
+  // [BUG FIX] 隐藏帧标题
+  if (framesTitle) framesTitle.style.display = 'none';
   document.getElementById('videoFrames').innerHTML = '';
   document.getElementById('videoResults').innerHTML = '';
   document.getElementById('videoFileInput').value = '';
   document.getElementById('videoAnalyzeBtn').disabled = true;
+  document.getElementById('videoAnalyzeBtn').innerHTML = currentLang === 'en' ? '🔍 Start Analysis' : '🔍 开始分析';
   document.getElementById('videoResetBtn').disabled = true;
 }
 

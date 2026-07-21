@@ -1286,7 +1286,7 @@ function updateVideoDiagText() {
   if (heroDesc) heroDesc.textContent = t('videoDiagHeroDesc');
   if (dropText) dropText.textContent = t('videoDiagDropText');
   if (dropHint) dropHint.textContent = t('videoDiagDropHint');
-  if (analyzeBtn) analyzeBtn.textContent = t('videoDiagAnalyzeBtn');
+  if (analyzeBtn && !(videoDiagState && videoDiagState.isAnalyzing)) analyzeBtn.textContent = t('videoDiagAnalyzeBtn');
   if (resetBtn) resetBtn.textContent = t('videoDiagResetBtn');
   if (framesTitle) framesTitle.textContent = t('videoDiagFramesTitle');
 

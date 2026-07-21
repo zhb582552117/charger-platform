@@ -1169,4 +1169,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderVisualPage();
   switchKbSection('product');
   initLanguage();
+  if (typeof initVideoDiag === 'function') initVideoDiag();
 });

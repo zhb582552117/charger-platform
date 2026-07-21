@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CZC7EI充电机智能排查平台 | 上海施能电器设备有限公司</title>
+  <meta name="description" content="CZC7EI系列锂电池充电机在线智能排查维修平台 - AI问答、故障代码查询、排查向导、知识库">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="logo">⚡</div>
+      <span>CZC7EI 充电机智能排查平台</span>
+      <span class="sub">上海施能电器设备有限公司</span>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" data-page="chat" onclick="switchPage('chat')">🤖 AI 问答</div>
+      <div class="nav-tab" data-page="visual" onclick="switchPage('visual')">🖼️ 图文排查</div>
+      <div class="nav-tab" data-page="fault" onclick="switchPage('fault')">🔧 故障代码</div>
+      <div class="nav-tab" data-page="wizard" onclick="switchPage('wizard')">📋 排查向导</div>
+      <div class="nav-tab" data-page="kb" onclick="switchPage('kb')">📚 知识库</div>
+    </div>
+  </nav>
+
+  <div class="main-container">
+
+    <!-- ===== AI 问答页面 ===== -->
+    <div class="page active" data-page="chat">
+      <div class="chat-page">
+        <!-- 欢迎页 -->
+        <div class="chat-welcome" id="chatWelcome">
+          <h1>👋 您好，我是充电机智能助手</h1>
+          <p>基于 CZC7EI 系列充电机培训资料，我可以帮您排查故障、查询代码、指导维修</p>
+          <div class="quick-questions">
+            <div class="quick-question" onclick="quickAsk('通讯故障，连上电池后com灯不闪，不充电')">
+              <span class="icon">🔌</span>
+              <span>通讯故障，连上电池后com灯不闪不充电</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('充电机不充电，开机没反应')">
+              <span class="icon">🔇</span>
+              <span>充电机不充电，开机没反应</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('E-05 过压保护怎么处理')">
+              <span class="icon">⚡</span>
+              <span>E-05 过压保护怎么处理？</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('充电模块故障，没有可控模块 E-14')">
+              <span class="icon">🔧</span>
+              <span>充电模块故障 E-14 没有可控模块</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('温度过高过温报警')">
+              <span class="icon">🔥</span>
+              <span>温度过高/过温报警怎么办？</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('如何设置预约充电')">
+              <span class="icon">⏰</span>
+              <span>如何设置预约充电？</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('如何查询充电机信息')">
+              <span class="icon">🔍</span>
+              <span>如何查询充电机参数信息？</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('BMS故障 F-01 绝缘故障')">
+              <span class="icon">🔋</span>
+              <span>BMS故障 F-01 绝缘故障</span>
+            </div>
+            <div class="quick-question" onclick="quickAsk('配件购买和保修政策')">
+              <span class="icon">📦</span>
+              <span>配件购买和保修政策</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <!-- 输入区域 -->
+        <div class="chat-input-area">
+          <div class="chat-input-wrapper">
+            <textarea
+              class="chat-input"
+              id="chatInput"
+              placeholder="输入故障代码（如 E-05）或描述故障现象，按回车发送..."
+              rows="1"></textarea>
+            <button class="chat-send-btn" id="chatSendBtn">
+              发送 →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 图文排查页面 ===== -->
+    <div class="page" data-page="visual">
+      <div class="visual-page">
+        <div class="visual-hero">
+          <h1>🖼️ CZC7EI 图文排查指南</h1>
+          <p>对照实拍图，一步步定位问题</p>
+        </div>
+        <div class="visual-steps" id="visualSteps"></div>
+        <div class="visual-gallery">
+          <h3>📷 全部参考图片</h3>
+          <div class="visual-grid" id="visualGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 故障代码页面 ===== -->
+    <div class="page" data-page="fault">
+      <div class="fault-page">
+        <div class="fault-search">
+          <input type="text" id="faultSearchInput" placeholder="搜索故障代码或关键词（如 E-05、过压、通讯）...">
+        </div>
+        <div class="fault-filter">
+          <div class="filter-chip active" data-filter="all">全部</div>
+          <div class="filter-chip" data-filter="charger">充电机故障 (E系列)</div>
+          <div class="filter-chip" data-filter="bms">BMS故障 (F系列)</div>
+          <div class="filter-chip" data-filter="battery">电池故障 (C系列)</div>
+        </div>
+        <div class="fault-grid" id="faultGrid"></div>
+      </div>
+    </div>
+
+    <!-- ===== 排查向导页面 ===== -->
+    <div class="page" data-page="wizard">
+      <div class="wizard-page">
+        <div class="wizard-container" id="wizardContent"></div>
+      </div>
+    </div>
+
+    <!-- ===== 知识库页面 ===== -->
+    <div class="page" data-page="kb">
+      <div class="kb-page">
+        <div class="kb-grid">
+          <div class="kb-sidebar">
+            <div class="kb-nav-item active" data-section="product" onclick="switchKbSection('product')">🏢 产品概述</div>
+            <div class="kb-nav-item" data-section="panel" onclick="switchKbSection('panel')">🔘 面板操作</div>
+            <div class="kb-nav-item" data-section="detection" onclick="switchKbSection('detection')">🔍 检测流程</div>
+            <div class="kb-nav-item" data-section="testpoints" onclick="switchKbSection('testpoints')">📍 检测部位</div>
+            <div class="kb-nav-item" data-section="modules" onclick="switchKbSection('modules')">📊 模块代码</div>
+            <div class="kb-nav-item" data-section="tools" onclick="switchKbSection('tools')">🛠️ 工具与售后</div>
+          </div>
+          <div class="kb-content" id="kbContent"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/knowledge-base.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

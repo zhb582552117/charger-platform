@@ -174,6 +174,22 @@
           <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
         </div>
 
+        <!-- 步骤提示 -->
+        <div class="video-step-guide" id="videoStepGuide" style="display:none;">
+          <div class="step-item active" id="step1">
+            <span class="step-num">1</span>
+            <span class="step-text" data-i18n="videoDiagStep1">上传视频</span>
+          </div>
+          <div class="step-item" id="step2">
+            <span class="step-num">2</span>
+            <span class="step-text" data-i18n="videoDiagStep2">框选数码管区域</span>
+          </div>
+          <div class="step-item" id="step3">
+            <span class="step-num">3</span>
+            <span class="step-text" data-i18n="videoDiagStep3">自动识别诊断</span>
+          </div>
+        </div>
+
         <!-- 视频预览和控制 -->
         <div class="video-controls" id="videoControls" style="display:none;">
           <video id="videoPreview" controls playsinline style="display:none;max-width:100%;border-radius:12px;background:#000;"></video>
@@ -181,6 +197,24 @@
           <div class="video-btn-group">
             <button class="btn btn-primary" id="videoAnalyzeBtn" disabled>🔍 开始分析</button>
             <button class="btn btn-secondary" id="videoResetBtn" disabled>🔄 重新上传</button>
+          </div>
+        </div>
+
+        <!-- 框选数码管区域 -->
+        <div class="crop-section" id="cropSection" style="display:none;">
+          <div class="crop-header">
+            <h3>✂️ <span data-i18n="videoDiagCropTitle">框选数码管显示区域</span></h3>
+            <p class="crop-hint" data-i18n="videoDiagCropHint">在下图关键帧上，用鼠标拖拽框选数码管显示数字的区域（如 E-08）。框选越精确，识别越准确。</p>
+          </div>
+          <div class="crop-canvas-wrapper" id="cropCanvasWrapper">
+            <canvas id="cropCanvas"></canvas>
+            <div class="crop-overlay" id="cropOverlay"></div>
+          </div>
+          <div class="crop-btn-group">
+            <button class="btn btn-primary" id="cropConfirmBtn" disabled>✅ <span data-i18n="videoDiagCropConfirm">确认区域并识别</span></button>
+            <button class="btn btn-secondary" id="cropResetBtn">🔄 <span data-i18n="videoDiagCropReset">重新框选</span></button>
+            <button class="btn btn-secondary" id="cropAutoBtn">🤖 <span data-i18n="videoDiagCropAuto">自动检测</span></button>
+            <button class="btn btn-secondary" id="cropSkipBtn">⏭️ <span data-i18n="videoDiagCropSkip">跳过(手动选择)</span></button>
           </div>
         </div>
 
@@ -194,6 +228,14 @@
         <div class="video-frames-section">
           <h3 id="videoFramesTitle" style="display:none;">🎞️ 提取的关键帧</h3>
           <div class="video-frames-grid" id="videoFrames"></div>
+        </div>
+
+        <!-- 调试面板 -->
+        <div class="debug-panel" id="debugPanel" style="display:none;">
+          <details>
+            <summary data-i18n="videoDiagDebugTitle">🔧 识别过程详情（点击展开）</summary>
+            <div id="debugContent"></div>
+          </details>
         </div>
 
         <!-- 诊断结果 -->

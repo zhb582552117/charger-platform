@@ -23,6 +23,16 @@ const I18N = {
       videoDiagAnalyzeBtn: "🔍 开始分析",
       videoDiagResetBtn: "🔄 重新上传",
       videoDiagFramesTitle: "🎞️ 提取的关键帧",
+      videoDiagStep1: "上传视频",
+      videoDiagStep2: "框选数码管区域",
+      videoDiagStep3: "自动识别诊断",
+      videoDiagCropTitle: "框选数码管显示区域",
+      videoDiagCropHint: "在下图关键帧上，用鼠标拖拽框选数码管显示数字的区域（如 E-08）。框选越精确，识别越准确。",
+      videoDiagCropConfirm: "确认区域并识别",
+      videoDiagCropReset: "重新框选",
+      videoDiagCropAuto: "自动检测",
+      videoDiagCropSkip: "跳过(手动选择)",
+      videoDiagDebugTitle: "🔧 识别过程详情（点击展开）",
       chatWelcomeTitle: "👋 您好，我是充电机智能助手",
       chatWelcomeDesc: "基于 CZC7EI 系列充电机培训资料，我可以帮您排查故障、查询代码、指导维修",
       chatPlaceholder: "输入故障代码（如 E-05）或描述故障现象，按回车发送...",
@@ -86,6 +96,16 @@ const I18N = {
       videoDiagAnalyzeBtn: "🔍 Start Analysis",
       videoDiagResetBtn: "🔄 Re-upload",
       videoDiagFramesTitle: "🎞️ Extracted Key Frames",
+      videoDiagStep1: "Upload Video",
+      videoDiagStep2: "Crop Display Area",
+      videoDiagStep3: "Auto Recognize & Diagnose",
+      videoDiagCropTitle: "Crop Digital Display Area",
+      videoDiagCropHint: "Drag on the key frame below to select the digital display area (e.g. E-08). More precise selection = better accuracy.",
+      videoDiagCropConfirm: "Confirm & Recognize",
+      videoDiagCropReset: "Re-select",
+      videoDiagCropAuto: "Auto Detect",
+      videoDiagCropSkip: "Skip (Manual Select)",
+      videoDiagDebugTitle: "🔧 Recognition Details (Click to expand)",
       chatWelcomeTitle: "👋 Hello, I'm your charger diagnostic assistant",
       chatWelcomeDesc: "Based on CZC7EI series charger training materials, I can help you diagnose faults, query codes, and guide repairs",
       chatPlaceholder: "Enter fault code (e.g. E-05) or describe the fault symptom, press Enter to send...",
@@ -1264,7 +1284,7 @@ function switchLanguage(lang) {
   renderVisualPage();
 
   // Update video diagnosis page text
-  updateVideoDiagText();
+  updateVideoDiagTexts();
 
   // Re-render current KB section
   const activeSection = document.querySelector('.kb-nav-item.active');
@@ -1273,7 +1293,7 @@ function switchLanguage(lang) {
 }
 
 // ===== 更新视频诊断页面文本 =====
-function updateVideoDiagText() {
+function updateVideoDiagTexts() {
   const heroTitle = document.querySelector('.video-diag-hero h1');
   const heroDesc = document.querySelector('.video-diag-hero p');
   const dropText = document.querySelector('.drop-text');
@@ -1289,6 +1309,12 @@ function updateVideoDiagText() {
   if (analyzeBtn && !(videoDiagState && videoDiagState.isAnalyzing)) analyzeBtn.textContent = t('videoDiagAnalyzeBtn');
   if (resetBtn) resetBtn.textContent = t('videoDiagResetBtn');
   if (framesTitle) framesTitle.textContent = t('videoDiagFramesTitle');
+
+  // 更新 data-i18n 属性的元素（步骤提示、框选区域等）
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) el.textContent = t(key);
+  });
 
   // 如果已有分析结果，重新渲染
   if (videoDiagState && videoDiagState.analysisResults.length > 0 && !videoDiagState.isAnalyzing) {

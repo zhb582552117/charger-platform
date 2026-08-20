@@ -71,7 +71,7 @@ function appendMessage(role, text, steps, relatedCodes, title, imageKeys) {
   const msg = document.createElement('div');
   msg.className = `message ${role}`;
 
-  const avatar = role === 'user' ? '<div class="message-avatar">我</div>' : '<div class="message-avatar">AI</div>';
+  const avatar = role === 'user' ? `<div class="message-avatar">${t('chatAvatarUser')}</div>` : `<div class="message-avatar">${t('chatAvatarBot')}</div>`;
 
   let contentHtml = '';
   if (role === 'user') {
@@ -89,11 +89,11 @@ function appendMessage(role, text, steps, relatedCodes, title, imageKeys) {
       contentHtml += renderImageGallery(imageKeys, 'image-gallery');
     }
     if (relatedCodes && relatedCodes.length) {
-      contentHtml += '<div class="related-codes"><span class="label">相关故障码：</span>';
+      contentHtml += `<div class="related-codes"><span class="label">${t('chatRelatedCodes')}</span>`;
       relatedCodes.forEach(code => {
-        const fault = KNOWLEDGE_BASE.faultCodes.find(f => f.code === code);
+        const fault = getKB().faultCodes.find(f => f.code === code);
         if (fault) {
-          const typeClass = fault.type === '充电机故障' ? 'charger' : fault.type === 'BMS故障' ? 'bms' : 'battery';
+          const typeClass = getFaultTypeClass(fault.type);
           contentHtml += `<span class="code-badge ${typeClass}" onclick="showFaultDetail('${code}')">${code}</span>`;
         }
       });
@@ -109,20 +109,68 @@ function appendMessage(role, text, steps, relatedCodes, title, imageKeys) {
 
 function matchKnowledge(query) {
   const q = query.toLowerCase().trim();
+  const is7T = currentModel === '7t';
 
-  // 1. 先匹配故障代码（如 E-05, F-01, C-00）
-  const codeMatch = query.match(/[ecfECF]-\d{2}/i);
-  if (codeMatch) {
-    const code = codeMatch[0].toUpperCase();
-    const fault = KNOWLEDGE_BASE.faultCodes.find(f => f.code === code);
-    if (fault) {
+  // 1. 先匹配故障代码
+  if (is7T) {
+    // CZC7T 使用文字故障（如"通讯故障"、"过压保护"、"OVP"）
+    // 也兼容 E-xx / F-xx 格式（自动映射到对应文字故障）
+    const codeMatch = query.match(/[ecfECF]-\d{2}/i);
+    if (codeMatch) {
+      const code = codeMatch[0].toUpperCase();
+      const fault = getKB().faultCodes.find(f => (f.codeZh === code) || (f.code === code));
+      if (fault) {
+        const stepsPrefix = currentLang === 'en' ? ', specific troubleshooting steps:' : '，具体排查步骤如下：';
+        return {
+          title: `${fault.code} - ${fault.reason}`,
+          answer: fault.solution + stepsPrefix,
+          steps: fault.steps,
+          relatedCodes: [fault.code],
+          images: fault.images || []
+        };
+      }
+      // CZC7T 无 E-xx 代码体系，给出提示
       return {
-        title: `${fault.code} - ${fault.reason}`,
-        answer: fault.solution + '，具体排查步骤如下：',
-        steps: fault.steps,
-        relatedCodes: [fault.code],
-        images: fault.images || []
+        title: currentLang === 'en' ? 'CZC7T uses text-based faults' : 'CZC7T 使用文字描述故障',
+        answer: currentLang === 'en'
+          ? 'The CZC7T series displays faults as text messages (e.g., "Comm Failure", "OVP") instead of E-xx codes. Please describe the fault message shown on the HMI touch screen.'
+          : 'CZC7T 系列充电机通过HMI触摸屏显示文字故障信息（如"通讯故障"、"过压保护"），不使用 E-xx 数字代码。请描述屏幕显示的故障文字。',
+        steps: currentLang === 'en'
+          ? ['Common CZC7T faults: Undervoltage, Reversed, Phase Failure, Module OTP, OVP, OCP, Comm Failure, BMS Failure, Input OVP/UVP, Gun OVT']
+          : ['CZC7T常见故障：欠压、接反、缺相、模块过热、过压保护(OVP)、过流保护(OCP)、通讯故障、BMS故障、输入过压/欠压、充电枪过温'],
+        relatedCodes: [],
+        images: []
       };
+    }
+    // 文字故障匹配：query 包含故障名，或故障名包含 query
+    for (const fault of getKB().faultCodes) {
+      const names = [fault.code, fault.codeZh || fault.code, fault.reason, fault.reasonZh || ''].map(s => s.toLowerCase());
+      if (names.some(n => n && (q.includes(n) || (n.length >= 2 && n.includes(q))))) {
+        const stepsPrefix = currentLang === 'en' ? ', specific troubleshooting steps:' : '，具体排查步骤如下：';
+        return {
+          title: `${fault.code} - ${fault.reason}`,
+          answer: fault.solution + stepsPrefix,
+          steps: fault.steps,
+          relatedCodes: [fault.code],
+          images: fault.images || []
+        };
+      }
+    }
+  } else {
+    const codeMatch = query.match(/[ecfECF]-\d{2}/i);
+    if (codeMatch) {
+      const code = codeMatch[0].toUpperCase();
+      const fault = getKB().faultCodes.find(f => f.code === code);
+      if (fault) {
+        const stepsPrefix = currentLang === 'en' ? ', specific troubleshooting steps:' : '，具体排查步骤如下：';
+        return {
+          title: `${fault.code} - ${fault.reason}`,
+          answer: fault.solution + stepsPrefix,
+          steps: fault.steps,
+          relatedCodes: [fault.code],
+          images: fault.images || []
+        };
+      }
     }
   }
 
@@ -130,15 +178,25 @@ function matchKnowledge(query) {
   const moduleCodeMatch = q.match(/(?:模块|工作)?代码\s*(\d+)/) || q.match(/code\s*(\d+)/i);
   if (moduleCodeMatch) {
     const code = parseInt(moduleCodeMatch[1]);
-    const module = KNOWLEDGE_BASE.moduleCodes.find(m => m.code === code);
+    const module = getKB().moduleCodes.find(m => m.code === code);
     if (module) {
+      const moduleTitlePrefix = currentLang === 'en' ? 'Module Work Code' : '模块工作代码';
+      const moduleDescPrefix = currentLang === 'en' ? 'Module work code' : '模块工作代码';
+      const moduleMeansPrefix = currentLang === 'en' ? 'means:' : '表示：';
+      const queryMethod = is7T
+        ? (currentLang === 'en'
+          ? 'Query method: HMI → Module page → check Work Code column'
+          : '查询方法：HMI主界面 → Module（模块）界面 → 查看Work Code列')
+        : (currentLang === 'en'
+          ? 'Query method: hold Info button 3 seconds, switch to [20] DC Module interface'
+          : '查询方法：长按信息键3秒进入查询界面，切换到【20】DC模块界面查看');
       return {
-        title: `模块工作代码 ${code} - ${module.desc}`,
+        title: `${moduleTitlePrefix} ${code} - ${module.desc}`,
         answer: module.action,
         steps: [
-          `模块工作代码 ${code} 表示：${module.desc}`,
-          `处理方式：${module.action}`,
-          '查询方法：长按信息键3秒进入查询界面，切换到【20】DC模块界面查看'
+          `${moduleDescPrefix} ${code} ${moduleMeansPrefix} ${module.desc}`,
+          `${currentLang === 'en' ? 'Action:' : '处理方式：'} ${module.action}`,
+          queryMethod
         ],
         relatedCodes: []
       };
@@ -149,7 +207,7 @@ function matchKnowledge(query) {
   let bestMatch = null;
   let bestScore = 0;
 
-  for (const entry of KNOWLEDGE_BASE.qaEntries) {
+  for (const entry of getKB().qaEntries || KNOWLEDGE_BASE.qaEntries) {
     let score = 0;
     for (const kw of entry.keywords) {
       if (q.includes(kw.toLowerCase())) {
@@ -173,16 +231,20 @@ function matchKnowledge(query) {
   }
 
   // 4. 默认回复
+  if (is7T) {
+    const dr = getKB().defaultReply;
+    return {
+      title: dr.title,
+      answer: dr.answer,
+      steps: dr.steps,
+      relatedCodes: [],
+      images: []
+    };
+  }
   return {
-    title: '暂未找到匹配的答案',
-    answer: '抱歉，我暂时无法准确回答这个问题。您可以尝试：',
-    steps: [
-      '直接输入故障代码（如 E-05、F-01）查询具体故障信息',
-      '描述故障现象，例如"通讯灯不闪"、"充不进电"、"过温报警"',
-      '前往「故障代码」页面浏览所有故障代码',
-      '使用「排查向导」按步骤排查问题',
-      '如需人工技术支持，请联系上海施能电器设备有限公司'
-    ],
+    title: t('chatDefaultTitle'),
+    answer: t('chatDefaultAnswer'),
+    steps: t('chatDefaultSteps'),
     relatedCodes: [],
     images: []
   };
@@ -197,11 +259,13 @@ function quickAsk(question) {
 
 function renderFaultCodes(filter = 'all', search = '') {
   const grid = document.getElementById('faultGrid');
-  let codes = KNOWLEDGE_BASE.faultCodes;
+  let codes = getKB().faultCodes;
 
   if (filter !== 'all') {
-    const typeMap = { charger: '充电机故障', bms: 'BMS故障', battery: '电池故障' };
-    codes = codes.filter(c => c.type === typeMap[filter]);
+    const typeMapZh = { charger: '充电机故障', bms: 'BMS故障', battery: '电池故障' };
+    const typeMapEn = { charger: 'Charger Fault', bms: 'BMS Fault', battery: 'Battery Fault' };
+    const typeMap = currentLang === 'en' ? typeMapEn : typeMapZh;
+    codes = codes.filter(c => c.type === typeMap[filter] || (currentLang === 'en' && typeMapZh[filter] === c.type) || (currentLang === 'zh' && typeMapEn[filter] === c.type));
   }
 
   if (search) {
@@ -214,19 +278,20 @@ function renderFaultCodes(filter = 'all', search = '') {
   }
 
   if (codes.length === 0) {
-    grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-400);">未找到匹配的故障代码</div>';
+    grid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray-400);">${t('faultNoResult')}</div>`;
     return;
   }
 
   grid.innerHTML = codes.map(fault => {
-    const typeClass = fault.type === '充电机故障' ? 'charger' : fault.type === 'BMS故障' ? 'bms' : 'battery';
-    const sevClass = fault.severity === '高' ? 'severity-high' : fault.severity === '中' ? 'severity-medium' : 'severity-low';
-    const sevText = fault.severity === '高' ? '紧急' : fault.severity === '中' ? '一般' : '轻微';
+    const typeClass = getFaultTypeClass(fault.type);
+    const sevClass = getSeverityClass(fault.severity);
+    const sevText = getSeverityText(fault.severity);
+    const typeName = getFaultTypeName(fault.type);
     return `
       <div class="fault-card" onclick="showFaultDetail('${fault.code}')">
         <div class="fault-card-header">
           <span class="fault-code">${fault.code}</span>
-          <span class="fault-type-tag ${typeClass}">${fault.type}</span>
+          <span class="fault-type-tag ${typeClass}">${typeName}</span>
         </div>
         <div class="fault-card-body">
           <div class="fault-reason">${fault.reason}<span class="fault-severity ${sevClass}">${sevText}</span></div>
@@ -256,12 +321,13 @@ function initFaultPage() {
 }
 
 function showFaultDetail(code) {
-  const fault = KNOWLEDGE_BASE.faultCodes.find(f => f.code === code);
+  const fault = getKB().faultCodes.find(f => f.code === code);
   if (!fault) return;
 
-  const typeClass = fault.type === '充电机故障' ? 'charger' : fault.type === 'BMS故障' ? 'bms' : 'battery';
-  const sevClass = fault.severity === '高' ? 'severity-high' : fault.severity === '中' ? 'severity-medium' : 'severity-low';
-  const sevText = fault.severity === '高' ? '紧急' : fault.severity === '中' ? '一般' : '轻微';
+  const typeClass = getFaultTypeClass(fault.type);
+  const sevClass = getSeverityClass(fault.severity);
+  const sevText = getSeverityText(fault.severity);
+  const typeName = getFaultTypeName(fault.type);
 
   const overlay = document.createElement('div');
   overlay.className = 'fault-modal-overlay';
@@ -270,29 +336,29 @@ function showFaultDetail(code) {
       <div class="fault-modal-header">
         <h3>
           <span class="fault-code">${fault.code}</span>
-          <span class="fault-type-tag ${typeClass}">${fault.type}</span>
+          <span class="fault-type-tag ${typeClass}">${typeName}</span>
         </h3>
-        <button class="fault-modal-close" onclick="closeFaultModal()">&times;</button>
+        <button class="fault-modal-close" onclick="closeFaultModal()">${t('faultModalClose')}</button>
       </div>
       <div class="fault-modal-body">
         <div class="info-row">
-          <span class="info-label">故障原因</span>
+          <span class="info-label">${t('faultLabelReason')}</span>
           <span class="info-value">${fault.reason}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">处理方法</span>
+          <span class="info-label">${t('faultLabelSolution')}</span>
           <span class="info-value">${fault.solution}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">紧急程度</span>
+          <span class="info-label">${t('faultLabelSeverity')}</span>
           <span class="info-value"><span class="fault-severity ${sevClass}">${sevText}</span></span>
         </div>
-        <div class="steps-title">📋 排查步骤</div>
+        <div class="steps-title">${t('faultStepsTitle')}</div>
         <ol>
           ${fault.steps.map(s => `<li>${s}</li>`).join('')}
         </ol>
         ${fault.images && fault.images.length ? `
-          <div class="steps-title">🖼️ 参考图片</div>
+          <div class="steps-title">${t('faultImagesTitle')}</div>
           ${renderImageGallery(fault.images)}
         ` : ''}
       </div>
@@ -324,7 +390,7 @@ const wizardSteps = [
   }
 ];
 
-const wizardResults = {
+const wizardResults7EI = {
   comm: {
     title: '通讯故障排查方案',
     images: ['panelCom', 'canSignal', 'plugPins'],
@@ -415,20 +481,37 @@ let wizardSelection = null;
 
 function renderWizardStep() {
   const container = document.getElementById('wizardContent');
+  let wizardOpts, wizardResults;
+
+  if (currentModel === '7t') {
+    const ws = getKB().wizardSteps;
+    wizardOpts = ws.options;
+    wizardResults = {};
+    Object.keys(ws.results).forEach(k => {
+      const r = ws.results[k];
+      wizardResults[k] = {
+        title: currentLang === 'en' ? (r.titleEn || r.title) : r.title,
+        images: r.images,
+        steps: currentLang === 'en' ? (r.stepsEn || r.steps) : r.steps
+      };
+    });
+  } else {
+    wizardOpts = currentLang === 'en' ? I18N.wizard.en.options : wizardSteps[0].options;
+    wizardResults = currentLang === 'en' ? I18N.wizard.en.results : wizardResults7EI;
+  }
 
   if (wizardStepIndex === 0) {
-    const step = wizardSteps[0];
     container.innerHTML = `
       <div class="wizard-step-indicator">
-        <div class="step-dot active">1</div>
+        <div class="step-dot active">${t('wizardStepIndicator1')}</div>
         <div class="step-line"></div>
-        <div class="step-dot">2</div>
+        <div class="step-dot">${t('wizardStepIndicator2')}</div>
       </div>
       <div class="wizard-card">
-        <h2>${step.title}</h2>
-        <p class="desc">${step.desc}</p>
+        <h2>${t('wizardTitle')}</h2>
+        <p class="desc">${t('wizardDesc')}</p>
         <div class="wizard-options">
-          ${step.options.map((opt, i) => `
+          ${wizardOpts.map((opt, i) => `
             <div class="wizard-option" onclick="selectWizardOption('${opt.next}', this)">
               <span class="option-icon">${opt.icon}</span>
               <div>
@@ -444,20 +527,20 @@ function renderWizardStep() {
     const result = wizardResults[wizardSelection];
     container.innerHTML = `
       <div class="wizard-step-indicator">
-        <div class="step-dot completed">1</div>
+        <div class="step-dot completed">${t('wizardStepIndicator1')}</div>
         <div class="step-line completed"></div>
-        <div class="step-dot active">2</div>
+        <div class="step-dot active">${t('wizardStepIndicator2')}</div>
       </div>
       <div class="wizard-result">
         <h2>✅ ${result.title}</h2>
-        <p style="color:var(--gray-500);font-size:14px;margin-bottom:12px;">请按以下步骤逐一排查：</p>
+        <p style="color:var(--gray-500);font-size:14px;margin-bottom:12px;">${t('wizardResultSubtitle')}</p>
         ${result.images && result.images.length ? renderImageGallery(result.images) : ''}
         <ol class="result-steps">
           ${result.steps.map(s => `<li>${s}</li>`).join('')}
         </ol>
         <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="askInChat('${result.title}')">在AI问答中继续提问</button>
-          <button class="btn btn-secondary" onclick="resetWizard()">重新排查</button>
+          <button class="btn btn-primary" onclick="askInChat('${result.title.replace(/'/g, "\\'")}')">${t('wizardBtnChat')}</button>
+          <button class="btn btn-secondary" onclick="resetWizard()">${t('wizardBtnReset')}</button>
         </div>
       </div>
     `;
@@ -486,12 +569,14 @@ function renderVisualPage() {
   const gridContainer = document.getElementById('visualGrid');
   if (!stepsContainer || !gridContainer) return;
 
-  // 渲染5步排查流程
-  stepsContainer.innerHTML = KNOWLEDGE_BASE.eiGuideSteps.map(guide => `
+  const guideSteps = getKB().eiGuideSteps;
+
+  // 渲染排查流程
+  stepsContainer.innerHTML = guideSteps.map(guide => `
     <div class="visual-step-card">
       <div class="visual-step-num">
         ${guide.step}
-        <span>STEP</span>
+        <span>${t('visualStepLabel')}</span>
       </div>
       <div class="visual-step-content">
         <h3>${guide.title}</h3>
@@ -501,7 +586,7 @@ function renderVisualPage() {
         </ul>
         <div class="visual-step-images">
           ${guide.images.map(key => {
-            const img = KNOWLEDGE_BASE.images[key];
+            const img = getKB().images[key];
             return `
               <div class="image-card" onclick="openLightbox('${img.src}', '${escapeHtml(img.title)}', '${escapeHtml(img.desc)}')">
                 <img src="${img.src}" alt="${escapeHtml(img.title)}" loading="lazy">
@@ -515,7 +600,8 @@ function renderVisualPage() {
   `).join('');
 
   // 渲染全部图片
-  gridContainer.innerHTML = Object.entries(KNOWLEDGE_BASE.images).map(([key, img]) => `
+  const images = getKB().images;
+  gridContainer.innerHTML = Object.entries(images).map(([key, img]) => `
     <div class="image-card" onclick="openLightbox('${img.src}', '${escapeHtml(img.title)}', '${escapeHtml(img.desc)}')">
       <img src="${img.src}" alt="${escapeHtml(img.title)}" loading="lazy">
       <div class="image-caption">${escapeHtml(img.title)}</div>
@@ -532,25 +618,27 @@ function askInChat(title) {
 // ===== 知识库模块 =====
 
 const kbSections = {
-  product: () => `
-    <h2>产品概述</h2>
-    <p class="kb-subtitle">${KNOWLEDGE_BASE.product.company} | ${KNOWLEDGE_BASE.product.series}</p>
+  product: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('productTitle')}</h2>
+    <p class="kb-subtitle">${tk('productSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>🏢 公司信息</h3>
+      <h3>${tk('companyInfo')}</h3>
       <table class="info-table">
-        <tr><td style="width:120px;font-weight:600;">公司名称</td><td>${KNOWLEDGE_BASE.product.company}</td></tr>
-        <tr><td style="font-weight:600;">品牌</td><td>${KNOWLEDGE_BASE.product.brand}（SINCE ${KNOWLEDGE_BASE.product.since}）</td></tr>
-        <tr><td style="font-weight:600;">产品系列</td><td>${KNOWLEDGE_BASE.product.series}</td></tr>
+        <tr><td style="width:120px;font-weight:600;">${tk('companyNameLabel')}</td><td>${kb.product.company}</td></tr>
+        <tr><td style="font-weight:600;">${tk('brandLabel')}</td><td>${kb.product.brand}（SINCE ${kb.product.since}）</td></tr>
+        <tr><td style="font-weight:600;">${tk('seriesLabel')}</td><td>${kb.product.series}</td></tr>
       </table>
     </div>
 
     <div class="kb-section">
-      <h3>📋 产品型号</h3>
+      <h3>${tk('productModels')}</h3>
       <table class="info-table">
-        <thead><tr><th>型号</th><th>说明</th><th>功率</th></tr></thead>
+        <thead><tr><th>${tk('modelLabel')}</th><th>${tk('modelDescLabel')}</th><th>${tk('modelPowerLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.product.models.map(m => `
+          ${kb.product.models.map(m => `
             <tr><td class="mono">${m.code}</td><td>${m.desc}</td><td>${m.power}</td></tr>
           `).join('')}
         </tbody>
@@ -558,52 +646,55 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>✨ 功能特点</h3>
+      <h3>${tk('productFeatures')}</h3>
       <ul class="feature-list">
-        ${KNOWLEDGE_BASE.product.features.map(f => `<li>${f}</li>`).join('')}
+        ${kb.product.features.map(f => `<li>${f}</li>`).join('')}
       </ul>
     </div>
 
     <div class="kb-section">
-      <h3>🔧 内部结构</h3>
+      <h3>${tk('internalStructure')}</h3>
       <table class="info-table">
-        <thead><tr><th>部件名称</th><th>说明</th></tr></thead>
+        <thead><tr><th>${tk('partNameLabel')}</th><th>${tk('partDescLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.product.internalStructure.map(p => `
+          ${kb.product.internalStructure.map(p => `
             <tr><td style="font-weight:600;">${p.name}</td><td>${p.desc}</td></tr>
           `).join('')}
         </tbody>
       </table>
     </div>
-  `,
+  `;
+  },
 
-  specs: () => `
-    <h2>主要技术参数</h2>
-    <p class="kb-subtitle">CZC7EI系列智能充电机规格表（特殊规格可定制）</p>
+  specs: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('specsTitle')}</h2>
+    <p class="kb-subtitle">${tk('specsSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>📐 功率与电流计算公式</h3>
+      <h3>${tk('formulaTitle')}</h3>
       <table class="info-table">
-        <tr><td style="width:120px;font-weight:600;">输入功率</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.inputPower}</td></tr>
-        <tr><td style="font-weight:600;">单相/两相</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.singlePhase}</td></tr>
-        <tr><td style="font-weight:600;">三相</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.threePhase}</td></tr>
-        <tr><td style="font-weight:600;">输入电流</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.current}</td></tr>
-        <tr><td style="font-weight:600;">计算示例</td><td>${KNOWLEDGE_BASE.technicalSpecs.formula.example}</td></tr>
+        <tr><td style="width:120px;font-weight:600;">${tk('inputPowerLabel')}</td><td>${kb.technicalSpecs.formula.inputPower}</td></tr>
+        <tr><td style="font-weight:600;">${tk('singlePhaseLabel')}</td><td>${kb.technicalSpecs.formula.singlePhase}</td></tr>
+        <tr><td style="font-weight:600;">${tk('threePhaseLabel')}</td><td>${kb.technicalSpecs.formula.threePhase}</td></tr>
+        <tr><td style="font-weight:600;">${tk('inputCurrentLabel')}</td><td>${kb.technicalSpecs.formula.current}</td></tr>
+        <tr><td style="font-weight:600;">${tk('exampleLabel')}</td><td>${kb.technicalSpecs.formula.example}</td></tr>
       </table>
-      <div class="tp-note">💡 ${KNOWLEDGE_BASE.technicalSpecs.note}</div>
+      <div class="tp-note">${tk('specsNote')}</div>
     </div>
 
     <div class="kb-section">
-      <h3>📋 常规规格表</h3>
+      <h3>${tk('specTableTitle')}</h3>
       <table class="info-table">
         <thead>
           <tr>
-            <th>规格</th><th>额定输入</th><th>功率</th><th>输入电流</th>
-            <th>最大输出电流</th><th>最大输出电压</th><th>净重</th><th>通讯</th><th>防护</th><th>外形尺寸</th>
+            <th>${tk('specLabel')}</th><th>${tk('inputLabel')}</th><th>${tk('powerLabel')}</th><th>${tk('currentLabel')}</th>
+            <th>${tk('maxCurrentLabel')}</th><th>${tk('maxVoltageLabel')}</th><th>${tk('weightLabel')}</th><th>${tk('commLabel')}</th><th>${tk('ipLabel')}</th><th>${tk('sizeLabel')}</th>
           </tr>
         </thead>
         <tbody>
-          ${KNOWLEDGE_BASE.technicalSpecs.models.map(m => `
+          ${kb.technicalSpecs.models.map(m => `
             <tr>
               <td style="font-weight:600;">${m.spec}</td>
               <td>${m.input}</td>
@@ -622,60 +713,66 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>🌡️ 正常工作条件</h3>
+      <h3>${tk('workingConditions')}</h3>
       <ul class="feature-list">
-        ${KNOWLEDGE_BASE.workingConditions.conditions.map(c => `<li>${c}</li>`).join('')}
+        ${kb.workingConditions.conditions.map(c => `<li>${c}</li>`).join('')}
       </ul>
-      <div class="tp-note">⚠️ ${KNOWLEDGE_BASE.workingConditions.warning}</div>
+      <div class="tp-note">${tk('wcWarning')}</div>
     </div>
-  `,
+  `;
+  },
 
-  installation: () => `
-    <h2>安装要求</h2>
-    <p class="kb-subtitle">CZC7EI充电机安装场所布置与接线要求</p>
+  installation: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('installationTitle')}</h2>
+    <p class="kb-subtitle">${tk('installationSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>🏠 充电场所布置要求</h3>
+      <h3>${tk('siteRequirements')}</h3>
       ${renderImageGallery(['installationLayout'])}
       <ul class="feature-list" style="margin-top:16px;">
-        ${KNOWLEDGE_BASE.installation.site.requirements.map(r => `<li>${r}</li>`).join('')}
+        ${kb.installation.site.requirements.map(r => `<li>${r}</li>`).join('')}
       </ul>
     </div>
 
     <div class="kb-section">
-      <h3>🔌 输入/输出线连接要求</h3>
+      <h3>${tk('wiringRequirements')}</h3>
       <ul class="feature-list">
-        ${KNOWLEDGE_BASE.installation.wiring.requirements.map(r => `<li>${r}</li>`).join('')}
+        ${kb.installation.wiring.requirements.map(r => `<li>${r}</li>`).join('')}
       </ul>
-      <div class="tp-note">⚠️ ${KNOWLEDGE_BASE.installation.warning}</div>
+      <div class="tp-note">${tk('installWarning')}</div>
     </div>
-  `,
+  `;
+  },
 
-  panel: () => `
-    <h2>面板操作指南</h2>
-    <p class="kb-subtitle">CZC7EI充电机面板按键、指示灯及显示界面说明</p>
+  panel: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('panelTitle')}</h2>
+    <p class="kb-subtitle">${tk('panelSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>⚡ 上电显示流程</h3>
+      <h3>${tk('bootSequence')}</h3>
       <div style="padding:16px;background:var(--gray-100);border-radius:12px;margin-bottom:12px;">
-        <p style="font-weight:600;margin-bottom:12px;">${KNOWLEDGE_BASE.panelGuide.bootSequence.desc}</p>
+        <p style="font-weight:600;margin-bottom:12px;">${kb.panelGuide.bootSequence.desc}</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-          ${KNOWLEDGE_BASE.panelGuide.bootSequence.steps.map((s, i) => `
+          ${kb.panelGuide.bootSequence.steps.map((s, i) => `
             <span style="padding:6px 12px;background:#fff;border-radius:8px;font-size:14px;color:var(--gray-700);border:1px solid var(--gray-200);">
               ${i > 0 ? '→' : ''} ${s}
             </span>
           `).join('')}
         </div>
-        <p style="font-size:13px;color:var(--gray-500);">${KNOWLEDGE_BASE.panelGuide.bootSequence.note}</p>
+        <p style="font-size:13px;color:var(--gray-500);">${kb.panelGuide.bootSequence.note}</p>
       </div>
     </div>
 
     <div class="kb-section">
-      <h3>🔘 按键功能</h3>
+      <h3>${tk('keyFunctions')}</h3>
       <table class="info-table">
-        <thead><tr><th>按键</th><th>功能</th></tr></thead>
+        <thead><tr><th>${tk('keyLabel')}</th><th>${tk('keyFuncLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.panelGuide.keys.map(k => `
+          ${kb.panelGuide.keys.map(k => `
             <tr><td style="font-weight:600;">${k.name}</td><td>${k.function}</td></tr>
           `).join('')}
         </tbody>
@@ -683,11 +780,11 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>💡 指示灯说明</h3>
+      <h3>${tk('indicators')}</h3>
       <table class="info-table">
-        <thead><tr><th>指示灯</th><th>含义</th></tr></thead>
+        <thead><tr><th>${tk('indLabel')}</th><th>${tk('indMeaningLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.panelGuide.indicators.map(ind => `
+          ${kb.panelGuide.indicators.map(ind => `
             <tr><td style="font-weight:600;">${ind.name}</td><td>${ind.meaning}</td></tr>
           `).join('')}
         </tbody>
@@ -695,11 +792,11 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>📱 显示界面</h3>
+      <h3>${tk('interfaces')}</h3>
       <table class="info-table">
-        <thead><tr><th>界面标志</th><th>名称</th><th>显示内容</th></tr></thead>
+        <thead><tr><th>${tk('ifaceIdLabel')}</th><th>${tk('ifaceNameLabel')}</th><th>${tk('ifaceDescLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.panelGuide.interfaces.map(i => `
+          ${kb.panelGuide.interfaces.map(i => `
             <tr><td class="mono">${i.id}</td><td style="font-weight:600;">${i.name}</td><td>${i.desc}</td></tr>
           `).join('')}
         </tbody>
@@ -707,32 +804,35 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>⏰ 预约充电操作</h3>
+      <h3>${tk('scheduledCharging')}</h3>
       <ol style="padding-left:20px;">
-        ${KNOWLEDGE_BASE.scheduledCharging.steps.map((s, i) => `<li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+        ${kb.scheduledCharging.steps.map((s, i) => `<li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
       </ol>
     </div>
 
     <div class="kb-section">
-      <h3>🔍 信息查询方法</h3>
+      <h3>${tk('queryMethod')}</h3>
       <ol style="padding-left:20px;">
-        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">长按"信息键"3秒以上（数码管显示读秒），释放后进入查询界面</li>
-        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">通过单击"启/停键"轮询各显示界面，按"信息键"进入</li>
-        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">各界面项目每过几秒自动显示下一项，单击信息键可加速查看</li>
+        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Hold "Info Button" for 3+ seconds (display shows countdown), release to enter query interface' : '长按"信息键"3秒以上（数码管显示读秒），释放后进入查询界面'}</li>
+        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Click "Start/Stop Button" to cycle through interfaces, press "Info Button" to enter' : '通过单击"启/停键"轮询各显示界面，按"信息键"进入'}</li>
+        <li style="margin-bottom:8px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Items auto-rotate every few seconds; click Info Button to skip ahead' : '各界面项目每过几秒自动显示下一项，单击信息键可加速查看'}</li>
       </ol>
     </div>
-  `,
+  `;
+  },
 
-  detection: () => `
-    <h2>故障检测流程</h2>
-    <p class="kb-subtitle">充电机故障的标准检测步骤</p>
+  detection: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('detectionTitle')}</h2>
+    <p class="kb-subtitle">${tk('detectionSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>🔍 ${KNOWLEDGE_BASE.detectionSteps.phase1.title}</h3>
+      <h3>🔍 ${kb.detectionSteps.phase1.title}</h3>
       <table class="info-table">
-        <thead><tr><th style="width:40px;">#</th><th>操作</th><th>说明</th><th>查看位置</th></tr></thead>
+        <thead><tr><th style="width:40px;">#</th><th>${tk('detectionColAction')}</th><th>${tk('detectionColDesc')}</th><th>${tk('detectionColInterface')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.detectionSteps.phase1.steps.map((s, i) => `
+          ${kb.detectionSteps.phase1.steps.map((s, i) => `
             <tr>
               <td style="font-weight:600;text-align:center;">${i+1}</td>
               <td style="font-weight:600;">${s.action}</td>
@@ -745,11 +845,11 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>⚡ ${KNOWLEDGE_BASE.detectionSteps.phase2.title}</h3>
+      <h3>⚡ ${kb.detectionSteps.phase2.title}</h3>
       <table class="info-table">
-        <thead><tr><th style="width:40px;">#</th><th>操作</th><th>说明</th><th>查看位置</th></tr></thead>
+        <thead><tr><th style="width:40px;">#</th><th>${tk('detectionColAction')}</th><th>${tk('detectionColDesc')}</th><th>${tk('detectionColInterface')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.detectionSteps.phase2.steps.map((s, i) => `
+          ${kb.detectionSteps.phase2.steps.map((s, i) => `
             <tr>
               <td style="font-weight:600;text-align:center;">${i+1}</td>
               <td style="font-weight:600;">${s.action}</td>
@@ -760,18 +860,21 @@ const kbSections = {
         </tbody>
       </table>
     </div>
-  `,
+  `;
+  },
 
-  testpoints: () => `
-    <h2>重点检测部位</h2>
-    <p class="kb-subtitle">充电机关键测点的正常值与检测条件</p>
+  testpoints: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('testpointsTitle')}</h2>
+    <p class="kb-subtitle">${tk('testpointsSubtitle')}</p>
 
-    ${KNOWLEDGE_BASE.keyTestPoints.map(tp => `
+    ${kb.keyTestPoints.map(tp => `
       <div class="kb-section">
         <h3>📍 ${tp.category}</h3>
-        <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">检测条件：${tp.condition}</p>
+        <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">${tk('conditionLabel')}${tp.condition}</p>
         <table class="info-table">
-          <thead><tr><th>检测项目</th><th>检测位置</th><th>正常值</th><th>备注</th></tr></thead>
+          <thead><tr><th>${tk('testpointColTest')}</th><th>${tk('testpointColLocation')}</th><th>${tk('testpointColNormal')}</th><th>${tk('testpointColNote')}</th></tr></thead>
           <tbody>
             ${tp.points.map(p => `
               <tr>
@@ -786,31 +889,34 @@ const kbSections = {
         <div class="tp-note">⚠️ ${tp.note}</div>
       </div>
     `).join('')}
-  `,
+  `;
+  },
 
-  modules: () => `
-    <h2>模块工作代码</h2>
-    <p class="kb-subtitle">DC模块工作状态代码含义及处理方法（在【20】界面查看）</p>
+  modules: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('modulesTitle')}</h2>
+    <p class="kb-subtitle">${tk('modulesSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>📊 模块状态标志说明</h3>
+      <h3>${tk('moduleStatusTitle')}</h3>
       <table class="info-table">
-        <thead><tr><th>标志格式</th><th>含义</th></tr></thead>
+        <thead><tr><th>${currentLang === 'en' ? 'Flag Format' : '标志格式'}</th><th>${currentLang === 'en' ? 'Meaning' : '含义'}</th></tr></thead>
         <tbody>
-          <tr><td class="mono">X0</td><td>模块不在线（检查供电和通讯线）</td></tr>
-          <tr><td class="mono">X1</td><td>模块在线且工作正常</td></tr>
-          <tr><td class="mono">X2</td><td>模块在线但工作不正常（查看工作代码）</td></tr>
+          <tr><td class="mono">X0</td><td>${currentLang === 'en' ? 'Module offline (check power and comm cables)' : '模块不在线（检查供电和通讯线）'}</td></tr>
+          <tr><td class="mono">X1</td><td>${currentLang === 'en' ? 'Module online and working normally' : '模块在线且工作正常'}</td></tr>
+          <tr><td class="mono">X2</td><td>${currentLang === 'en' ? 'Module online but abnormal (check work code)' : '模块在线但工作不正常（查看工作代码）'}</td></tr>
         </tbody>
       </table>
-      <p style="font-size:13px;color:var(--gray-500);margin-top:8px;">注：X为模块地址编号，x为状态标志</p>
+      <p style="font-size:13px;color:var(--gray-500);margin-top:8px;">${currentLang === 'en' ? 'Note: X = module address number, x = status flag' : '注：X为模块地址编号，x为状态标志'}</p>
     </div>
 
     <div class="kb-section">
-      <h3>📋 工作代码表</h3>
+      <h3>${tk('moduleCodeTable')}</h3>
       <table class="info-table">
-        <thead><tr><th style="width:80px;">代码</th><th>状态描述</th><th>处理方法</th></tr></thead>
+        <thead><tr><th style="width:80px;">${tk('moduleCodeColCode')}</th><th>${tk('moduleCodeColDesc')}</th><th>${tk('moduleCodeColAction')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.moduleCodes.map(m => `
+          ${kb.moduleCodes.map(m => `
             <tr>
               <td class="mono" style="font-weight:700;font-size:16px;color:var(--primary);">${m.code}</td>
               <td style="font-weight:600;">${m.desc}</td>
@@ -822,56 +928,60 @@ const kbSections = {
     </div>
 
     <div class="kb-section">
-      <h3>🔧 查询方法</h3>
+      <h3>${tk('moduleQueryMethod')}</h3>
       <ol style="padding-left:20px;">
-        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">充电机开机后，按住"信息键"3秒以上（数码管显示读秒）</li>
-        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">释放后进入查询界面</li>
-        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">单击"启/停键"轮询至界面标志【20】</li>
-        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">按"信息键"进入DC模块界面</li>
-        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">查看子模块标志和模块工作代码</li>
+        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'After powering on, hold "Info Button" for 3+ seconds (display shows countdown)' : '充电机开机后，按住"信息键"3秒以上（数码管显示读秒）'}</li>
+        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Release to enter query interface' : '释放后进入查询界面'}</li>
+        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Click "Start/Stop Button" to cycle to interface [20]' : '单击"启/停键"轮询至界面标志【20】'}</li>
+        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'Press "Info Button" to enter DC Module interface' : '按"信息键"进入DC模块界面'}</li>
+        <li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? 'View submodule flags and module work codes' : '查看子模块标志和模块工作代码'}</li>
       </ol>
     </div>
-  `,
+  `;
+  },
 
-  tools: () => `
-    <h2>检修工具与售后</h2>
-    <p class="kb-subtitle">检修所需工具、售后政策及联系方式</p>
+  tools: () => {
+    const kb = getKB();
+    return `
+    <h2>${tk('toolsTitle')}</h2>
+    <p class="kb-subtitle">${tk('toolsSubtitle')}</p>
 
     <div class="kb-section">
-      <h3>🏢 售后联系信息</h3>
+      <h3>${tk('contactInfo')}</h3>
       <table class="info-table">
-        <tr><td style="width:120px;font-weight:600;">公司名称</td><td>${KNOWLEDGE_BASE.contact.company}</td></tr>
-        <tr><td style="font-weight:600;">地址</td><td>${KNOWLEDGE_BASE.contact.address}</td></tr>
-        <tr><td style="font-weight:600;">邮编</td><td>${KNOWLEDGE_BASE.contact.zipCode}</td></tr>
-        <tr><td style="font-weight:600;">销售</td><td>${KNOWLEDGE_BASE.contact.sales.join(' / ')}</td></tr>
-        <tr><td style="font-weight:600;">传真</td><td>${KNOWLEDGE_BASE.contact.fax}</td></tr>
-        <tr><td style="font-weight:600;">技术支持</td><td>${KNOWLEDGE_BASE.contact.technicalSupport}</td></tr>
-        <tr><td style="font-weight:600;">售后服务</td><td>${KNOWLEDGE_BASE.contact.afterSales}</td></tr>
-        <tr><td style="font-weight:600;">应急/投诉</td><td>${KNOWLEDGE_BASE.contact.emergency}</td></tr>
-        <tr><td style="font-weight:600;">网址</td><td>${KNOWLEDGE_BASE.contact.website}</td></tr>
+        <tr><td style="width:120px;font-weight:600;">${tk('contactCompanyLabel')}</td><td>${kb.contact.company}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactAddressLabel')}</td><td>${kb.contact.address}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactZipLabel')}</td><td>${kb.contact.zipCode}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactSalesLabel')}</td><td>${kb.contact.sales.join(' / ')}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactFaxLabel')}</td><td>${kb.contact.fax}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactTechLabel')}</td><td>${kb.contact.technicalSupport}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactAfterSalesLabel')}</td><td>${kb.contact.afterSales}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactEmergencyLabel')}</td><td>${kb.contact.emergency}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactEmailLabel')}</td><td>${kb.contact.email}</td></tr>
+        <tr><td style="font-weight:600;">${tk('contactWebLabel')}</td><td>${kb.contact.website}</td></tr>
       </table>
     </div>
 
     <div class="kb-section">
-      <h3>🖼️ 整机结构与关键部件</h3>
+      <h3>${tk('structureImages')}</h3>
       ${renderImageGallery(['internalStructure', 'externalParts'])}
     </div>
 
     <div class="kb-section">
-      <h3>🛠️ 检修常用工具</h3>
+      <h3>${tk('repairToolsTitle')}</h3>
       <div style="display:flex;flex-wrap:wrap;gap:10px;">
-        ${KNOWLEDGE_BASE.repairTools.map(t => `
+        ${kb.repairTools.map(t => `
           <span style="padding:8px 16px;background:var(--gray-100);border-radius:8px;font-size:14px;color:var(--gray-700);">${t}</span>
         `).join('')}
       </div>
     </div>
 
     <div class="kb-section">
-      <h3>📦 ${KNOWLEDGE_BASE.afterSales.title}</h3>
+      <h3>${tk('afterSalesTitle')}</h3>
       <table class="info-table">
-        <thead><tr><th style="width:120px;">类型</th><th>适用条件</th><th>处理方式</th></tr></thead>
+        <thead><tr><th style="width:120px;">${tk('afterSalesTypeLabel')}</th><th>${tk('afterSalesCondLabel')}</th><th>${tk('afterSalesActionLabel')}</th></tr></thead>
         <tbody>
-          ${KNOWLEDGE_BASE.afterSales.items.map(item => `
+          ${kb.afterSales.items.map(item => `
             <tr>
               <td style="font-weight:600;color:var(--primary);">${item.type}</td>
               <td>${item.condition}</td>
@@ -880,32 +990,689 @@ const kbSections = {
           `).join('')}
         </tbody>
       </table>
-      <div class="tp-note">📋 ${KNOWLEDGE_BASE.afterSales.requirement}</div>
+      <div class="tp-note">${tk('afterSalesNote')}</div>
     </div>
 
     <div class="kb-section">
-      <h3>🔌 充电口定义</h3>
+      <h3>${tk('chargingPortTitle')}</h3>
       <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">
-        CZC7EI充电机配备REMA（公/母）和国标直流充电枪接口，匹配杭叉国标锂电池。<br>
-        充电口定义需根据具体机型和电池型号确认，安装时请参考设备铭牌和接口标识。
+        ${tk('chargingPortDesc')}
       </p>
     </div>
-  `
+  `;
+  },
+
+  // ===== 新增：系统架构 =====
+  systemArch: () => {
+    const kb = getKB();
+    const arch = kb.systemArchitecture;
+    return `
+    <h2>${tk('systemArchTitle')}</h2>
+    <p class="kb-subtitle">${tk('systemArchSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${arch.desc}</p>
+      <table class="info-table">
+        <thead><tr><th style="width:180px;">${tk('systemArchComponentLabel')}</th><th>${tk('systemArchDescLabel')}</th></tr></thead>
+        <tbody>
+          ${arch.components.map(c => `
+            <tr><td style="font-weight:600;color:var(--primary);">${c.name}</td><td>${c.desc}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 系统框图</h3>
+      ${renderImageGallery([arch.image])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：电路设计原理 =====
+  circuit: () => {
+    const kb = getKB();
+    const cd = kb.circuitDesign;
+    return `
+    <h2>${tk('circuitDesignTitle')}</h2>
+    <p class="kb-subtitle">${tk('circuitDesignSubtitle')}</p>
+
+    ${cd.sections.map(s => `
+    <div class="kb-section">
+      <h3>${s.name}</h3>
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${s.desc}</p>
+      ${s.image ? renderImageGallery([s.image]) : ''}
+    </div>
+    `).join('')}
+  `;
+  },
+
+  // ===== 新增：DIP拨码开关 =====
+  dipSwitch: () => {
+    const kb = getKB();
+    const ds = kb.dipSwitchSettings;
+    return `
+    <h2>${tk('dipSwitchTitle')}</h2>
+    <p class="kb-subtitle">${tk('dipSwitchSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${ds.desc}</p>
+      <div class="tp-note">${tk('dipSwitchNote')}</div>
+    </div>
+  `;
+  },
+
+  // ===== 新增：售后维修检测流程 =====
+  maintenance: () => {
+    const kb = getKB();
+    const md = kb.maintenanceDetection;
+    return `
+    <h2>${tk('maintenanceDetectionTitle')}</h2>
+    <p class="kb-subtitle">${tk('maintenanceDetectionSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${md.desc}</p>
+      ${md.steps.map(s => `
+      <h4 style="margin-top:16px;color:var(--primary);">🔧 ${s.component}</h4>
+      <table class="info-table">
+        <thead><tr><th>${tk('maintenanceTestPointLabel')}</th><th>${tk('maintenanceNormalLabel')}</th><th>${tk('maintenanceNoteLabel')}</th></tr></thead>
+        <tbody>
+          ${s.testPoints.map(tp => `
+            <tr><td>${tp.point}</td><td class="mono">${tp.normal}</td><td>${tp.note}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+      `).join('')}
+      <div class="tp-note">${tk('maintenanceNote')}</div>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 维修检测参考图</h3>
+      ${renderImageGallery([md.image, 'detectionTerminal', 'electricDiagram'])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：检测端子排线 =====
+  terminal: () => {
+    const kb = getKB();
+    const dt = kb.detectionTerminals;
+    return `
+    <h2>${tk('detectionTerminalTitle')}</h2>
+    <p class="kb-subtitle">${tk('detectionTerminalSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${dt.desc}</p>
+      <table class="info-table">
+        <thead><tr><th style="width:180px;">${tk('terminalNameLabel')}</th><th>${tk('terminalIdLabel')}</th><th>${tk('terminalDescLabel')}</th></tr></thead>
+        <tbody>
+          ${dt.items.map(item => `
+            <tr><td style="font-weight:600;color:var(--primary);">${item.name}</td><td class="mono">${item.terminals}</td><td>${item.desc}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h4 style="color:var(--primary);">📏 正常值参考</h4>
+      <ul style="font-size:14px;line-height:2;">
+        <li><strong>${dt.resistance.sPlusMinus}</strong></li>
+        <li><strong>${dt.resistance.aPlusMinus}</strong></li>
+        <li><strong>${dt.resistance.cc1PE}</strong></li>
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 端子排线参考图</h3>
+      ${renderImageGallery([dt.image, 'canSignal'])}
+    </div>
+  `;
+  },
+
+  // ===== 新增：急停开关 =====
+  emergencyStop: () => {
+    const kb = getKB();
+    const es = kb.emergencyStop;
+    return `
+    <h2>${tk('emergencyStopTitle')}</h2>
+    <p class="kb-subtitle">${tk('emergencyStopSubtitle')}</p>
+
+    <div class="kb-section">
+      <p style="font-size:14px;color:var(--gray-600);line-height:1.8;">${es.desc}</p>
+      <ul style="font-size:14px;line-height:2;">
+        ${es.operation.map(op => `<li>${op}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>🖼️ 急停开关位置</h3>
+      ${renderImageGallery(['externalParts'])}
+    </div>
+  `;
+  }
 };
 
 function switchKbSection(section) {
   document.querySelectorAll('.kb-nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.section === section);
   });
+  // 7EI 专有板块在 7T 机型下重定向到对应板块
+  if (currentModel === '7t' && section === 'product') section = 'product7t';
   const content = document.getElementById('kbContent');
-  content.innerHTML = kbSections[section]();
+  const renderer = (currentModel === '7t' && kbSections7T[section]) ? kbSections7T[section] : kbSections[section];
+  if (renderer) {
+    content.innerHTML = renderer();
+  } else {
+    content.innerHTML = `<div style="padding:40px;text-align:center;color:var(--gray-400);">${currentLang === 'en' ? 'Section not available for this model' : '该机型暂无此板块'}</div>`;
+  }
   content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== Update KB sidebar labels / Build KB nav per model =====
+const KB_NAV_7EI = [
+  { key: 'product', label: () => tk('kbNavProduct') },
+  { key: 'specs', label: () => tk('kbNavSpecs') },
+  { key: 'installation', label: () => tk('kbNavInstallation') },
+  { key: 'panel', label: () => tk('kbNavPanel') },
+  { key: 'detection', label: () => tk('kbNavDetection') },
+  { key: 'testpoints', label: () => tk('kbNavTestpoints') },
+  { key: 'modules', label: () => tk('kbNavModules') },
+  { key: 'systemArch', label: () => tk('kbNavSystemArch') },
+  { key: 'circuit', label: () => tk('kbNavCircuit') },
+  { key: 'dipSwitch', label: () => tk('kbNavDipSwitch') },
+  { key: 'maintenance', label: () => tk('kbNavMaintenance') },
+  { key: 'terminal', label: () => tk('kbNavTerminal') },
+  { key: 'emergencyStop', label: () => tk('kbNavEmergencyStop') },
+  { key: 'tools', label: () => tk('kbNavTools') }
+];
+
+const KB_NAV_7T = [
+  { key: 'product7t', label: () => currentLang === 'en' ? '🏢 Product Overview' : '🏢 产品概述' },
+  { key: 'specs7t', label: () => currentLang === 'en' ? '📋 Technical Specs' : '📋 技术参数' },
+  { key: 'structure7t', label: () => currentLang === 'en' ? '📦 Structure & Parts' : '📦 结构与部件' },
+  { key: 'controller7t', label: () => currentLang === 'en' ? '🧠 Controller Board' : '🧠 控制器接口' },
+  { key: 'hmi7t', label: () => currentLang === 'en' ? '📱 HMI Touch Screen' : '📱 HMI触摸屏' },
+  { key: 'startCond7t', label: () => currentLang === 'en' ? '🚦 Start Conditions' : '🚦 启动条件' },
+  { key: 'modules7t', label: () => currentLang === 'en' ? '📊 Module Work Codes' : '📊 模块工作代码' },
+  { key: 'messages7t', label: () => currentLang === 'en' ? '💬 Charger Messages' : '💬 充电机消息' },
+  { key: 'cases7t', label: () => currentLang === 'en' ? '📁 After-sales Cases' : '📁 售后案例' },
+  { key: 'upgrade7t', label: () => currentLang === 'en' ? '⬆️ Software Upgrade' : '⬆️ 软件升级' },
+  { key: 'params7t', label: () => currentLang === 'en' ? '⚙️ Charging Parameters' : '⚙️ 充电参数' },
+  { key: 'powerCalc7t', label: () => currentLang === 'en' ? '🔌 Power Calculation' : '🔌 配电计算' },
+  { key: 'naming7t', label: () => currentLang === 'en' ? '🏷️ Naming Convention' : '🏷️ 命名规则' },
+  { key: 'installation', label: () => currentLang === 'en' ? '📐 Installation' : '📐 安装要求' },
+  { key: 'tools', label: () => currentLang === 'en' ? '🛠️ Tools & After-sales' : '🛠️ 工具与售后' }
+];
+
+function buildKbNav() {
+  const sidebar = document.getElementById('kbSidebar');
+  if (!sidebar) return;
+  const nav = currentModel === '7t' ? KB_NAV_7T : KB_NAV_7EI;
+  sidebar.innerHTML = nav.map((item, i) => `
+    <div class="kb-nav-item ${i === 0 ? 'active' : ''}" data-section="${item.key}" onclick="switchKbSection('${item.key}')">${item.label()}</div>
+  `).join('');
+}
+
+// ===== CZC7T 知识库渲染 =====
+const kbSections7T = {
+  product7t: () => {
+    const kb = getKB();
+    const p = kb.product;
+    return `
+    <h2>${currentLang === 'en' ? 'Product Overview' : '产品概述'}</h2>
+    <p class="kb-subtitle">${p.description}</p>
+
+    <div class="kb-section">
+      <h3>${tk('companyInfo')}</h3>
+      <table class="info-table">
+        <tr><td style="width:140px;font-weight:600;">${tk('companyNameLabel')}</td><td>${p.company}</td></tr>
+        <tr><td style="font-weight:600;">${tk('brandLabel')}</td><td>${p.brand}（SINCE ${p.since}）</td></tr>
+        <tr><td style="font-weight:600;">${tk('seriesLabel')}</td><td>${p.series}</td></tr>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Main Features' : '主要功能'}</h3>
+      <ul class="feature-list">
+        ${p.features.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Enclosure Types' : '机箱类型'}</h3>
+      <table class="info-table">
+        <thead><tr><th>${currentLang === 'en' ? 'Enclosure' : '机箱'}</th><th>${currentLang === 'en' ? 'Dimensions' : '尺寸'}</th><th>${currentLang === 'en' ? 'Power Range' : '功率范围'}</th><th>${currentLang === 'en' ? 'Modules' : '模块数'}</th></tr></thead>
+        <tbody>
+          ${p.enclosures.map(e => `<tr><td style="font-weight:600;">${e.name}</td><td class="mono">${e.size}</td><td>${e.power}</td><td>${e.modules}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      ${renderImageGallery(['smallEnclosure', 'mediumEnclosure', 'largeEnclosure'])}
+    </div>
+
+    <div class="kb-section">
+      <h3>${tk('internalStructure')}</h3>
+      <table class="info-table">
+        <thead><tr><th>${tk('partNameLabel')}</th><th>${tk('partDescLabel')}</th></tr></thead>
+        <tbody>
+          ${p.internalStructure.map(part => `<tr><td style="font-weight:600;">${part.name}</td><td>${part.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${tk('productModels')}</h3>
+      <table class="info-table">
+        <thead><tr><th>${tk('modelLabel')}</th><th>${currentLang === 'en' ? 'Description' : '描述'}</th><th>${tk('modelPowerLabel')}</th><th>${currentLang === 'en' ? 'Input' : '输入'}</th><th>${currentLang === 'en' ? 'Efficiency' : '效率'}</th><th>${currentLang === 'en' ? 'Dimensions' : '尺寸'}</th></tr></thead>
+        <tbody>
+          ${p.models.map(m => `<tr><td class="mono">${m.code}</td><td>${m.desc}</td><td>${m.power}</td><td>${m.input}</td><td>${m.eff}</td><td class="mono">${m.size}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  },
+
+  specs7t: () => {
+    const kb = getKB();
+    const ts = kb.technicalSpecs;
+    return `
+    <h2>${tk('specsTitle')}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'CZC7T series technical specifications and power calculation' : 'CZC7T系列技术参数与配电计算'}</p>
+
+    <div class="kb-section">
+      <h3>${tk('formulaTitle')}</h3>
+      <table class="info-table">
+        <tr><td style="width:140px;font-weight:600;">${tk('singlePhaseLabel')}</td><td>${ts.formula.singlePhase}</td></tr>
+        <tr><td style="font-weight:600;">${tk('threePhaseLabel')}</td><td>${ts.formula.threePhase}</td></tr>
+        <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Conversion Factor' : '转换系数'}</td><td>${ts.formula.current}</td></tr>
+        <tr><td style="font-weight:600;">${tk('exampleLabel')}</td><td>${ts.formula.example}</td></tr>
+      </table>
+      <div class="tp-note">${currentLang === 'en' ? 'AC voltage range: 1-phase 230V±10%, 3-phase 320-520V' : 'AC电压范围：单相230V±10%，三相320-520V'}</div>
+    </div>
+
+    <div class="kb-section">
+      <h3>${tk('specTableTitle')}</h3>
+      <table class="info-table">
+        <thead>
+          <tr><th>${tk('specLabel')}</th><th>${tk('inputLabel')}</th><th>${tk('powerLabel')}</th><th>${currentLang === 'en' ? 'Max Input A' : '最大输入A'}</th><th>${currentLang === 'en' ? 'Rated kVA' : '额定kVA'}</th><th>${currentLang === 'en' ? 'Max Output A' : '最大输出A'}</th><th>${tk('commLabel')}</th><th>${tk('ipLabel')}</th><th>${tk('sizeLabel')}</th></tr>
+        </thead>
+        <tbody>
+          ${ts.models.map(m => `<tr><td style="font-weight:600;">${m.spec}</td><td>${m.input}</td><td>${m.power}</td><td>${m.current}</td><td>${m.maxCurrent}</td><td>${m.maxVoltage}</td><td>${m.comm}</td><td>${m.ip}</td><td class="mono">${m.size}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${tk('workingConditions')}</h3>
+      <ul class="feature-list">
+        ${kb.workingConditions.conditions.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+      <div class="tp-note">${currentLang === 'en' ? `HMI languages: ${ts.languagesEn || ts.languages}` : `HMI语言：${ts.languages}`}</div>
+    </div>
+  `;
+
+  },
+
+  structure7t: () => {
+    return `
+    <h2>${currentLang === 'en' ? 'Structure & Parts' : '结构与部件'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Internal layout and key components of CZC7T chargers' : 'CZC7T充电机内部布局与核心部件'}</p>
+    <div class="kb-section">
+      ${renderImageGallery(['smallEnclosure', 'mediumEnclosure', 'largeEnclosure', 'controllerBoard', 'schematic1', 'schematic2'])}
+    </div>
+  `;
+  },
+
+  controller7t: () => {
+    const kb = getKB();
+    const cb = kb.controllerBoard;
+    return `
+    <h2>${currentLang === 'en' ? 'Controller Board Interfaces' : '控制器板接口定义'}</h2>
+    <p class="kb-subtitle">${cb.desc}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th style="width:100px;">${tk('ifaceIdLabel')}</th><th>${tk('ifaceNameLabel')}</th><th>${tk('ifaceDescLabel')}</th></tr></thead>
+        <tbody>
+          ${cb.interfaces.map(i => `<tr><td class="mono">${i.id}</td><td style="font-weight:600;">${i.name}</td><td>${i.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="kb-section">
+      ${renderImageGallery(['controllerBoard'])}
+    </div>
+  `;
+  },
+
+  hmi7t: () => {
+    const kb = getKB();
+    const hmi = kb.hmi;
+    return `
+    <h2>${currentLang === 'en' ? 'HMI Touch Screen Guide' : 'HMI触摸屏指南'}</h2>
+    <p class="kb-subtitle">${hmi.home.desc}</p>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Home Page Items' : '主界面项目'}</h3>
+      <table class="info-table">
+        <thead><tr><th style="width:160px;">${currentLang === 'en' ? 'Item' : '项目'}</th><th>${currentLang === 'en' ? 'Description' : '说明'}</th></tr></thead>
+        <tbody>
+          ${hmi.home.items.map(i => `<tr><td style="font-weight:600;">${i.name}</td><td>${i.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'HMI Screens' : 'HMI界面'}</h3>
+      ${renderImageGallery(['hmiHome', 'hmiBattery', 'hmiModule', 'hmiEvent'])}
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Login Passwords' : '登录密码'}</h3>
+      <table class="info-table">
+        <tr><td style="font-weight:600;">${currentLang === 'en' ? 'User Login' : '用户登录'}</td><td class="mono">${kb.technicalSpecs.userPassword}（Setting → User Login → User）</td></tr>
+        <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Admin Login' : '管理员登录'}</td><td class="mono">${kb.technicalSpecs.adminPassword}（Setting → User Login → Admin）</td></tr>
+      </table>
+      <div class="tp-note">${currentLang === 'en' ? 'User login can view charging parameters; Admin login can view specification settings.' : '用户登录可查看充电参数设置；管理员登录可查看规格设置。'}</div>
+    </div>
+  `;
+  },
+
+  startCond7t: () => {
+    const kb = getKB();
+    const sc = kb.startConditions;
+    return `
+    <h2>${currentLang === 'en' ? 'Start Conditions' : '启动条件'}</h2>
+    <p class="kb-subtitle">${sc.desc}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th style="width:60px;">#</th><th style="width:220px;">${currentLang === 'en' ? 'Condition' : '条件'}</th><th>${currentLang === 'en' ? 'Requirement' : '要求'}</th></tr></thead>
+        <tbody>
+          ${sc.conditions.map((c, i) => `<tr><td style="font-weight:600;text-align:center;">${i+1}</td><td style="font-weight:600;color:var(--primary);">${c.name}</td><td>${c.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      ${renderImageGallery(['troubleshootStart'])}
+    </div>
+    ${['condition1', 'condition2', 'condition3', 'condition4'].map(k => {
+      const c = sc.troubleshooting[k];
+      return `
+      <div class="kb-section">
+        <h3>🔍 ${c.title}</h3>
+        <table class="info-table">
+          <tr><td style="width:140px;font-weight:600;color:var(--success);">✓ ${currentLang === 'en' ? 'Normal' : '正常'}</td><td>${c.normal}</td></tr>
+          <tr><td style="font-weight:600;color:var(--danger);">✗ ${currentLang === 'en' ? 'Abnormal' : '异常'}</td><td>${c.abnormal}</td></tr>
+        </table>
+        <ol style="padding-left:20px;margin-top:12px;">
+          ${c.steps.map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+        </ol>
+      </div>
+      `;
+    }).join('')}
+  `;
+  },
+
+  modules7t: () => {
+    const kb = getKB();
+    return `
+    <h2>${currentLang === 'en' ? 'Module Work Codes' : '模块工作代码'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Power module work codes 0-18. View: HMI → Module page → Work Code' : '电源模块工作代码0-18。查看方法：HMI主界面 → Module界面 → Work Code'}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th style="width:80px;">${tk('moduleCodeColCode')}</th><th>${tk('moduleCodeColDesc')}</th><th>${tk('moduleCodeColAction')}</th></tr></thead>
+        <tbody>
+          ${kb.moduleCodes.map(m => `
+            <tr>
+              <td class="mono" style="font-weight:700;font-size:16px;color:var(--primary);">${m.code}</td>
+              <td style="font-weight:600;">${m.desc}</td>
+              <td>${m.action}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="kb-section">
+      ${renderImageGallery(['faultModule1', 'faultModule2', 'hmiModule'])}
+    </div>
+    <div class="kb-section">
+      <h3>🔧 ${currentLang === 'en' ? 'Module Replacement' : '模块更换'}</h3>
+      <p style="font-size:14px;color:var(--gray-600);margin-bottom:10px;">${kb.moduleReplacement.desc}</p>
+      <ol style="padding-left:20px;">
+        ${kb.moduleReplacement.steps.map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+      </ol>
+    </div>
+  `;
+  },
+
+  messages7t: () => {
+    const kb = getKB();
+    return `
+    <h2>${currentLang === 'en' ? 'Charger Messages' : '充电机消息'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Messages displayed on HMI during charging' : '充电过程中HMI显示的各类消息'}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th style="width:220px;">${currentLang === 'en' ? 'Message' : '消息'}</th><th>${currentLang === 'en' ? 'Description' : '说明'}</th></tr></thead>
+        <tbody>
+          ${kb.chargerMessages.map(m => `<tr><td style="font-weight:600;">${currentLang === 'en' ? (m.msgEn || m.msg) : m.msg}</td><td>${m.desc}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  },
+
+  cases7t: () => {
+    const kb = getKB();
+    return `
+    <h2>${currentLang === 'en' ? 'After-sales Cases' : '售后案例'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Real-world troubleshooting cases from field service' : '来自现场服务的真实排查案例'}</p>
+    ${kb.afterSalesCases.map(c => `
+      <div class="kb-section">
+        <h3>📁 ${currentLang === 'en' ? `Case ${c.case}` : `案例 ${c.case}`}</h3>
+        <table class="info-table">
+          <tr><td style="width:100px;font-weight:600;">${currentLang === 'en' ? 'Phenomenon' : '现象'}</td><td>${c.phenomenon}</td></tr>
+          <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Reason' : '原因'}</td><td>${c.reason}</td></tr>
+          <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Solution' : '解决'}</td><td style="color:var(--success);font-weight:600;">${c.solution}</td></tr>
+        </table>
+      </div>
+    `).join('')}
+  `;
+  },
+
+  upgrade7t: () => {
+    const kb = getKB();
+    const su = kb.softwareUpgrade;
+    return `
+    <h2>${currentLang === 'en' ? 'Software Upgrade' : '软件升级'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Two upgrade methods: SD card (controller) and USB (HMI display)' : '两种升级方式：SD卡（主控程序）和U盘（显示程序）'}</p>
+    <div class="kb-section">
+      <h3>💾 ${su.controller.title}</h3>
+      <ol style="padding-left:20px;">
+        ${su.controller.steps.map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+      </ol>
+    </div>
+    <div class="kb-section">
+      <h3>🔌 ${su.hmi.title}</h3>
+      <ol style="padding-left:20px;">
+        ${su.hmi.steps.map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+      </ol>
+    </div>
+  `;
+  },
+
+  params7t: () => {
+    const kb = getKB();
+    const cp = kb.chargingParams;
+    const pageTitles = [
+      currentLang === 'en' ? 'Charging Parameters 1/7' : '充电参数 1/7',
+      currentLang === 'en' ? 'Charging Parameters 2/7' : '充电参数 2/7',
+      currentLang === 'en' ? 'Charging Parameters 3/7' : '充电参数 3/7',
+      currentLang === 'en' ? 'Charging Parameters 4/7' : '充电参数 4/7',
+      currentLang === 'en' ? 'Charging Parameters 5/7' : '充电参数 5/7'
+    ];
+    const pages = [cp.page1, cp.page2, cp.page3, cp.page4, cp.page5];
+    return `
+    <h2>${currentLang === 'en' ? 'Charging Parameters' : '充电参数'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Charging parameters reference (Setting → Charging Parameters, requires login)' : '充电参数参考（设置 → 充电参数，需登录后查看）'}</p>
+    ${pages.map((page, idx) => `
+      <div class="kb-section">
+        <h3>⚙️ ${pageTitles[idx]}</h3>
+        <table class="info-table">
+          <thead><tr><th style="width:220px;">${currentLang === 'en' ? 'Parameter' : '参数'}</th><th>${currentLang === 'en' ? 'Description' : '说明'}</th></tr></thead>
+          <tbody>
+            ${page.map(p => `<tr><td style="font-weight:600;">${p.name}</td><td>${p.desc}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    `).join('')}
+  `;
+  },
+
+  powerCalc7t: () => {
+    const kb = getKB();
+    const pc = kb.powerCalculation;
+    return `
+    <h2>${currentLang === 'en' ? 'Power Distribution Calculation' : '配电计算'}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? 'Input current calculation, breaker and cable selection' : '输入电流计算、断路器与电缆选型'}</p>
+    <div class="kb-section">
+      <h3>⚡ ${pc.inputCurrent.title}</h3>
+      <table class="info-table">
+        <tr><td style="width:140px;font-weight:600;">${tk('singlePhaseLabel')}</td><td>${pc.inputCurrent.formula1}</td></tr>
+        <tr><td style="font-weight:600;">${tk('threePhaseLabel')}</td><td>${pc.inputCurrent.formula3}</td></tr>
+        <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Factor' : '系数'}</td><td>${pc.inputCurrent.factor}</td></tr>
+        <tr><td style="font-weight:600;">${tk('exampleLabel')}</td><td>${pc.inputCurrent.example1}<br>${pc.inputCurrent.example3}</td></tr>
+      </table>
+    </div>
+    <div class="kb-section">
+      <h3>🔌 ${pc.breaker.title}</h3>
+      <table class="info-table">
+        <tr><td style="width:140px;font-weight:600;">${currentLang === 'en' ? 'Rule' : '规则'}</td><td>${pc.breaker.rule}</td></tr>
+        <tr><td style="font-weight:600;">1.15</td><td>${pc.breaker.note1}</td></tr>
+        <tr><td style="font-weight:600;">1.2</td><td>${pc.breaker.note2}</td></tr>
+        <tr><td style="font-weight:600;">${currentLang === 'en' ? 'Leakage' : '漏电'}</td><td>${pc.breaker.note3}</td></tr>
+      </table>
+    </div>
+    <div class="kb-section">
+      <h3>📐 ${pc.cable.title}</h3>
+      <p style="font-size:14px;color:var(--gray-600);">${pc.cable.note}</p>
+    </div>
+  `;
+  },
+
+  naming7t: () => {
+    const kb = getKB();
+    const nc = kb.namingConvention;
+    return `
+    <h2>${currentLang === 'en' ? 'Naming Convention' : '命名规则'}</h2>
+    <p class="kb-subtitle">${nc.desc}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th style="width:140px;">${currentLang === 'en' ? 'Part' : '部分'}</th><th>${currentLang === 'en' ? 'Meaning' : '含义'}</th></tr></thead>
+        <tbody>
+          ${nc.parts.map(p => `<tr><td class="mono" style="font-weight:700;color:var(--primary);">${p.part}</td><td>${p.meaning}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="tp-note">${nc.elitraDesc}</div>
+    </div>
+  `;
+  }
+};
+
+// ===== 快捷提问 =====
+const QUICK_QUESTIONS_7EI = [
+  { icon: '🔌', zh: '通讯故障，连上电池后com灯不闪不充电', en: 'Comm fault, com light not flashing after connecting battery' },
+  { icon: '🔇', zh: '充电机不充电，开机没反应', en: 'Charger not charging, no response on power' },
+  { icon: '⚡', zh: 'E-05 过压保护怎么处理？', en: 'E-05 overvoltage protection how to handle?' },
+  { icon: '🔧', zh: '充电模块故障 E-14 没有可控模块', en: 'Module fault E-14 no controllable module' },
+  { icon: '🔥', zh: '温度过高/过温报警怎么办？', en: 'Over-temperature alarm what to do?' },
+  { icon: '⏰', zh: '如何设置预约充电？', en: 'How to set scheduled charging?' },
+  { icon: '🔍', zh: '如何查询充电机参数信息？', en: 'How to query charger parameters?' },
+  { icon: '🔋', zh: 'BMS故障 F-01 绝缘故障', en: 'BMS fault F-01 insulation fault' },
+  { icon: '📦', zh: '配件购买和保修政策', en: 'Parts purchase and warranty policy' }
+];
+
+const QUICK_QUESTIONS_7T = [
+  { icon: '🔌', zh: '通讯故障，连上电池后不充电', en: 'Comm failure, not charging after connecting battery' },
+  { icon: '🔇', zh: '开机屏幕不亮，无反应', en: 'Screen not lighting up, no response' },
+  { icon: '🔥', zh: '模块过热/风机故障怎么办？', en: 'Module overheat / fan fault what to do?' },
+  { icon: '📊', zh: '模块工作代码含义', en: 'Module work code meaning' },
+  { icon: '⏰', zh: '如何设置预约充电？', en: 'How to set scheduled charging?' },
+  { icon: '⚡', zh: '如何使用强制充电功能？', en: 'How to use forced charging?' },
+  { icon: '⬆️', zh: '软件升级方法', en: 'Software upgrade method' },
+  { icon: '🔧', zh: '模块更换步骤', en: 'Module replacement steps' },
+  { icon: '📦', zh: '配件购买和保修政策', en: 'Parts purchase and warranty policy' }
+];
+
+function renderQuickQuestions() {
+  const container = document.getElementById('quickQuestions');
+  if (!container) return;
+  const list = currentModel === '7t' ? QUICK_QUESTIONS_7T : QUICK_QUESTIONS_7EI;
+  container.innerHTML = list.map(q => {
+    const text = currentLang === 'en' ? q.en : q.zh;
+    return `
+      <div class="quick-question" onclick="quickAsk('${text.replace(/'/g, "\\'")}')">
+        <span class="icon">${q.icon}</span>
+        <span>${text}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateWelcomeDesc() {
+  const desc = document.getElementById('chatWelcomeDesc');
+  if (!desc) return;
+  if (currentModel === '7t') {
+    desc.textContent = currentLang === 'en'
+      ? 'Based on CZC7T / Elitra iON 7T series charger training materials, I can help you troubleshoot faults and guide repairs'
+      : '基于 CZC7T / Elitra iON 7T 系列充电机培训资料，我可以帮您排查故障、指导维修';
+  } else {
+    desc.textContent = currentLang === 'en'
+      ? 'Based on CZC7EI series charger training materials, I can help you troubleshoot faults, query codes, and guide repairs'
+      : '基于 CZC7EI 系列充电机培训资料，我可以帮您排查故障、查询代码、指导维修';
+  }
+}
+
+// ===== 机型切换 =====
+function switchModel(model) {
+  currentModel = model;
+  localStorage.setItem('charger_model', model);
+
+  // 更新选择器
+  const selector = document.getElementById('modelSelector');
+  if (selector) selector.value = model;
+
+  // 重置聊天
+  const messages = document.getElementById('chatMessages');
+  if (messages) messages.innerHTML = '';
+  const welcome = document.getElementById('chatWelcome');
+  if (welcome) welcome.style.display = '';
+
+  // 重置排查向导
+  wizardStepIndex = 0;
+  wizardSelection = null;
+
+  // 更新故障筛选chips（CZC7T无电池C系列）
+  updateFaultFilterChips();
+
+  // 重新渲染所有页面
+  renderQuickQuestions();
+  updateWelcomeDesc();
+  renderFaultCodes();
+  renderWizardStep();
+  renderVisualPage();
+  buildKbNav();
+  switchKbSection(currentModel === '7t' ? 'product7t' : 'product');
+}
+
+function updateFaultFilterChips() {
+  const chips = document.querySelectorAll('.filter-chip');
+  const batteryChip = document.querySelector('.filter-chip[data-filter="battery"]');
+  if (batteryChip) {
+    batteryChip.style.display = currentModel === '7t' ? 'none' : '';
+  }
+  // 重置为全部
+  chips.forEach(c => c.classList.remove('active'));
+  const allChip = document.querySelector('.filter-chip[data-filter="all"]');
+  if (allChip) allChip.classList.add('active');
 }
 
 // ===== 图片展示工具 =====
 function renderImageGallery(imageKeys, cssClass = 'image-gallery') {
   if (!imageKeys || imageKeys.length === 0) return '';
-  const images = imageKeys.map(key => KNOWLEDGE_BASE.images[key]).filter(Boolean);
+  const kb = getKB();
+  const images = imageKeys.map(key => kb.images[key] || KNOWLEDGE_BASE.images[key]).filter(Boolean);
   if (images.length === 0) return '';
 
   return `
@@ -923,7 +1690,8 @@ function renderImageGallery(imageKeys, cssClass = 'image-gallery') {
 
 function renderInlineImages(imageKeys) {
   if (!imageKeys || imageKeys.length === 0) return '';
-  const images = imageKeys.map(key => KNOWLEDGE_BASE.images[key]).filter(Boolean);
+  const kb = getKB();
+  const images = imageKeys.map(key => kb.images[key] || KNOWLEDGE_BASE.images[key]).filter(Boolean);
   if (images.length === 0) return '';
 
   return `
@@ -969,10 +1737,29 @@ function escapeHtml(str) {
 
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
+  // 恢复持久化的机型（默认 7ei）
+  currentModel = localStorage.getItem('charger_model') || '7ei';
+  const selector = document.getElementById('modelSelector');
+  if (selector) selector.value = currentModel;
+
   initChat();
   initFaultPage();
+
+  // 机型相关的 UI
+  if (currentModel === '7t') updateFaultFilterChips();
+  renderQuickQuestions();
+  updateWelcomeDesc();
+
   renderFaultCodes();
   renderWizardStep();
   renderVisualPage();
-  switchKbSection('product');
+
+  // 构建机型对应的知识库导航
+  buildKbNav();
+  switchKbSection(currentModel === '7t' ? 'product7t' : 'product');
+
+  // 语言初始化（最后调用，内部会触发 switchLanguage 重渲染）
+  initLanguage();
+
+  if (typeof initVideoDiag === 'function') initVideoDiag();
 });

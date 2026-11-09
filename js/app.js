@@ -1199,6 +1199,9 @@ const KB_NAV_7T = [
   { key: 'upgrade7t', label: () => currentLang === 'en' ? '⬆️ Software Upgrade' : '⬆️ 软件升级' },
   { key: 'params7t', label: () => currentLang === 'en' ? '⚙️ Charging Parameters' : '⚙️ 充电参数' },
   { key: 'powerCalc7t', label: () => currentLang === 'en' ? '🔌 Power Calculation' : '🔌 配电计算' },
+  { key: 'modelComparison7t', label: () => currentLang === 'en' ? '⚖️ Model Comparison' : '⚖️ 机型对比' },
+  { key: 'doubleGun7t', label: () => currentLang === 'en' ? '🔫 Double-gun Charger' : '🔫 双枪机型' },
+  { key: 'certs7t', label: () => currentLang === 'en' ? '📜 Certifications' : '📜 认证证书' },
   { key: 'naming7t', label: () => currentLang === 'en' ? '🏷️ Naming Convention' : '🏷️ 命名规则' },
   { key: 'installation', label: () => currentLang === 'en' ? '📐 Installation' : '📐 安装要求' },
   { key: 'tools', label: () => currentLang === 'en' ? '🛠️ Tools & After-sales' : '🛠️ 工具与售后' }
@@ -1290,13 +1293,58 @@ const kbSections7T = {
     </div>
 
     <div class="kb-section">
-      <h3>${tk('specTableTitle')}</h3>
+      <h3>${currentLang === 'en' ? 'Electrical Parameters (Official Manual)' : '电气参数（官方说明书）'}</h3>
       <table class="info-table">
         <thead>
-          <tr><th>${tk('specLabel')}</th><th>${tk('inputLabel')}</th><th>${tk('powerLabel')}</th><th>${currentLang === 'en' ? 'Max Input A' : '最大输入A'}</th><th>${currentLang === 'en' ? 'Rated kVA' : '额定kVA'}</th><th>${currentLang === 'en' ? 'Max Output A' : '最大输出A'}</th><th>${tk('commLabel')}</th><th>${tk('ipLabel')}</th><th>${tk('sizeLabel')}</th></tr>
+          <tr><th>${currentLang === 'en' ? 'Model' : '型号'}</th><th>${currentLang === 'en' ? 'Input' : '额定输入'}</th><th>${currentLang === 'en' ? 'Input kVA' : '额定输入kVA'}</th><th>${currentLang === 'en' ? 'Input A' : '输入电流A'}</th><th>${currentLang === 'en' ? 'Output A' : '输出电流A'}</th><th>${currentLang === 'en' ? 'Max V' : '最大输出V'}</th><th>${currentLang === 'en' ? 'Weight' : '净重'}</th><th>${tk('sizeLabel')}</th></tr>
         </thead>
         <tbody>
-          ${ts.models.map(m => `<tr><td style="font-weight:600;">${m.spec}</td><td>${m.input}</td><td>${m.power}</td><td>${m.current}</td><td>${m.maxCurrent}</td><td>${m.maxVoltage}</td><td>${m.comm}</td><td>${m.ip}</td><td class="mono">${m.size}</td></tr>`).join('')}
+          ${ts.cnModels.map(m => `<tr><td class="mono" style="font-weight:600;">${m.spec}</td><td>${m.input}</td><td>${m.inPower}</td><td>${m.inCurrent}</td><td>${m.outCurrent}</td><td>${m.maxV}</td><td>${m.weight}</td><td class="mono">${m.size}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Full Model Spec Table (Cable & Plug)' : '完整型号规格表（含电缆/插头规格）'}</h3>
+      <table class="info-table">
+        <thead>
+          <tr><th>${currentLang === 'en' ? 'Model' : '型号'}</th><th>${currentLang === 'en' ? 'Battery V' : '电池电压'}</th><th>${currentLang === 'en' ? 'Input' : '输入'}</th><th>${currentLang === 'en' ? 'Output' : '输出功率'}</th><th>${currentLang === 'en' ? 'Input kVA' : '输入kVA'}</th><th>${currentLang === 'en' ? 'Max In A' : '最大输入A'}</th><th>${currentLang === 'en' ? 'Cable' : '电缆'}</th><th>${currentLang === 'en' ? 'Plug' : '插头'}</th></tr>
+        </thead>
+        <tbody>
+          ${ts.specModels.map(m => `<tr><td class="mono" style="font-weight:600;">${m.spec}</td><td>${m.battery}</td><td>${m.input}</td><td>${m.outPower}</td><td>${m.inPower}</td><td>${m.maxIn}</td><td class="mono">${m.cable}</td><td class="mono">${m.plug}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Double-gun / High-power Models' : '双枪/大功率机型'}</h3>
+      <table class="info-table">
+        <thead>
+          <tr><th>${currentLang === 'en' ? 'Model' : '型号'}</th><th>${currentLang === 'en' ? 'Battery V' : '电池电压'}</th><th>${currentLang === 'en' ? 'Output' : '输出功率'}</th><th>${currentLang === 'en' ? 'Input kVA' : '输入kVA'}</th><th>${currentLang === 'en' ? 'Max In A' : '最大输入A'}</th><th>${currentLang === 'en' ? 'Cable' : '电缆'}</th><th>${currentLang === 'en' ? 'Plug' : '插头'}</th></tr>
+        </thead>
+        <tbody>
+          ${ts.doubleGunModels.map(m => `<tr><td class="mono" style="font-weight:600;">${m.spec}</td><td>${m.battery}</td><td>${m.outPower}</td><td>${m.inPower}</td><td>${m.maxIn}</td><td class="mono">${m.cable}</td><td class="mono">${m.plug}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'UL Models (US Market)' : 'UL美标机型（U后缀）'}</h3>
+      <table class="info-table">
+        <thead>
+          <tr><th>${currentLang === 'en' ? 'Model' : '型号'}</th><th>${currentLang === 'en' ? 'Input Power' : '输入电源'}</th><th>${currentLang === 'en' ? 'Input kVA' : '输入kVA'}</th><th>${currentLang === 'en' ? 'Input A' : '输入电流A'}</th><th>${currentLang === 'en' ? 'Output A' : '输出电流A'}</th><th>${currentLang === 'en' ? 'Max V' : '最大输出V'}</th><th>${currentLang === 'en' ? 'V Range' : '电压范围'}</th><th>${tk('sizeLabel')}</th></tr>
+        </thead>
+        <tbody>
+          ${ts.ulModels.map(m => `<tr><td class="mono" style="font-weight:600;">${m.spec}</td><td>${m.input}</td><td>${m.inPower}</td><td>${m.inCurrent}</td><td>${m.outCurrent}</td><td>${m.maxV}</td><td class="mono">${m.vRange}</td><td class="mono">${m.size}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Electrical Characteristics' : '电气特性'}</h3>
+      <table class="info-table">
+        <tbody>
+          ${ts.electrical.map(e => `<tr><td style="width:160px;font-weight:600;">${currentLang === 'en' ? e.nameEn : e.name}</td><td>${currentLang === 'en' ? (e.valueEn || e.value) : e.value}</td></tr>`).join('')}
         </tbody>
       </table>
     </div>
@@ -1317,7 +1365,19 @@ const kbSections7T = {
     <h2>${currentLang === 'en' ? 'Structure & Parts' : '结构与部件'}</h2>
     <p class="kb-subtitle">${currentLang === 'en' ? 'Internal layout and key components of CZC7T chargers' : 'CZC7T充电机内部布局与核心部件'}</p>
     <div class="kb-section">
-      ${renderImageGallery(['smallEnclosure', 'mediumEnclosure', 'largeEnclosure', 'controllerBoard', 'schematic1', 'schematic2'])}
+      ${renderImageGallery(['productFront', 'specPhoto', 'doubleGunPhoto'])}
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Enclosure Dimension Drawings (Official Manual)' : '机箱外形尺寸图（官方说明书）'}</h3>
+      ${renderImageGallery(['dimSmall', 'dimMedium', 'dimLarge'])}
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Exploded Views' : '整机爆炸图'}</h3>
+      ${renderImageGallery(['troubleshootParts', 'explodedView2'])}
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Internal Components' : '内部部件'}</h3>
+      ${renderImageGallery(['smallEnclosure', 'mediumEnclosure', 'largeEnclosure', 'controllerBoard', 'internalWiring', 'breakerPhoto', 'schematic1', 'schematic2', 'schematicMain'])}
     </div>
   `;
   },
@@ -1360,6 +1420,10 @@ const kbSections7T = {
     <div class="kb-section">
       <h3>${currentLang === 'en' ? 'HMI Screens' : 'HMI界面'}</h3>
       ${renderImageGallery(['hmiHome', 'hmiBattery', 'hmiModule', 'hmiEvent'])}
+    </div>
+    <div class="kb-section">
+      <h3>${currentLang === 'en' ? 'Official Manual Screenshots' : '官方手册界面截图'}</h3>
+      ${renderImageGallery(['operationPanel', 'lcdFront', 'hmiSettingsEn', 'userLogin', 'hmiTroubleEn1', 'hmiTroubleEn2', 'hmiTroubleEn3'])}
     </div>
     <div class="kb-section">
       <h3>${currentLang === 'en' ? 'Login Passwords' : '登录密码'}</h3>
@@ -1431,8 +1495,9 @@ const kbSections7T = {
       <h3>🔧 ${currentLang === 'en' ? 'Module Replacement' : '模块更换'}</h3>
       <p style="font-size:14px;color:var(--gray-600);margin-bottom:10px;">${kb.moduleReplacement.desc}</p>
       <ol style="padding-left:20px;">
-        ${kb.moduleReplacement.steps.map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
+        ${(currentLang === 'en' ? (kb.moduleReplacement.stepsEn || kb.moduleReplacement.steps) : kb.moduleReplacement.steps).map(s => `<li style="margin-bottom:6px;font-size:14px;color:var(--gray-600);">${s}</li>`).join('')}
       </ol>
+      ${kb.moduleReplacement.images ? renderInlineImages(kb.moduleReplacement.images) : ''}
     </div>
   `;
   },
@@ -1546,7 +1611,90 @@ const kbSections7T = {
     </div>
     <div class="kb-section">
       <h3>📐 ${pc.cable.title}</h3>
-      <p style="font-size:14px;color:var(--gray-600);">${pc.cable.note}</p>
+      <p style="font-size:14px;color:var(--gray-600);">${currentLang === 'en' ? pc.cable.noteEn || pc.cable.note : pc.cable.note}</p>
+      ${pc.cable.bvTable ? `
+      <h4 style="margin:14px 0 8px;">${currentLang === 'en' ? pc.cable.bvTitleEn || pc.cable.bvTitle : pc.cable.bvTitle}</h4>
+      <table class="info-table">
+        <thead><tr><th>${currentLang === 'en' ? 'Section mm²' : '截面mm²'}</th><th>${currentLang === 'en' ? 'In air' : '空气中敷设'}</th><th>${currentLang === 'en' ? 'Metal tube 2P' : '金属管2根'}</th><th>${currentLang === 'en' ? 'Metal tube 3P' : '金属管3根'}</th><th>${currentLang === 'en' ? 'Metal tube 4P' : '金属管4根'}</th></tr></thead>
+        <tbody>
+          ${pc.cable.bvTable.map(r => `<tr><td class="mono">${r.section}</td><td>${r.air}</td><td>${r.tube2}</td><td>${r.tube3}</td><td>${r.tube4}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <h4 style="margin:14px 0 8px;">${currentLang === 'en' ? pc.cable.kvTitleEn || pc.cable.kvTitle : pc.cable.kvTitle}</h4>
+      <table class="info-table">
+        <thead><tr><th>${currentLang === 'en' ? 'Cores×Section' : '芯数×截面'}</th><th>${currentLang === 'en' ? 'In air (YJV)' : '空气中(YJV)'}</th><th>${currentLang === 'en' ? 'Buried (YJV22)' : '直埋(YJV22)'}</th></tr></thead>
+        <tbody>
+          ${pc.cable.kvTable.map(r => `<tr><td class="mono">${r.spec}mm²</td><td>${r.air}</td><td>${r.buried}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="tp-note">${currentLang === 'en' ? pc.cable.kvNoteEn || pc.cable.kvNote : pc.cable.kvNote}</div>
+      ` : ''}
+    </div>
+  `;
+  },
+
+  modelComparison7t: () => {
+    const kb = getKB();
+    const mc = kb.modelComparison;
+    return `
+    <h2>${currentLang === 'en' ? mc.titleEn || mc.title : mc.title}</h2>
+    <p class="kb-subtitle">${currentLang === 'en' ? mc.descEn || mc.desc : mc.desc}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr>${mc.headers.map(h => `<th>${currentLang === 'en' ? h : h}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${mc.rows.map(r => {
+            const en = currentLang === 'en';
+            return `<tr><td style="font-weight:600;">${en ? r.itemEn || r.item : r.item}</td><td>${en ? (r.tEn || r.t) : r.t}</td><td>${en ? (r.eiEn || r.ei) : r.ei}</td><td>${en ? (r.epEn || r.ep) : r.ep}</td></tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      <div class="tp-note">${currentLang === 'en' ? 'Source: EI 7T EP Product Difference Description' : '数据来源：EI/7T/EP产品差异说明（2024.12）'}</div>
+    </div>
+  `;
+  },
+
+  doubleGun7t: () => {
+    const kb = getKB();
+    const dg = kb.doubleGun;
+    const en = currentLang === 'en';
+    return `
+    <h2>${en ? dg.titleEn || dg.title : dg.title}</h2>
+    <p class="kb-subtitle">${en ? dg.descEn || dg.desc : dg.desc}</p>
+    <div class="kb-section">
+      ${dg.image && kb.images[dg.image] ? renderImageGallery([dg.image]) : ''}
+    </div>
+    <div class="kb-section">
+      <h3>${en ? 'Features' : '主要特点'}</h3>
+      <ul class="feature-list">
+        ${(en ? dg.featuresEn || dg.features : dg.features).map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="kb-section">
+      <h3>${en ? 'Structure & HMI' : '结构与界面'}</h3>
+      <table class="info-table">
+        <tr><td style="width:140px;font-weight:600;">${en ? 'Structure' : '内部结构'}</td><td>${en ? dg.structureEn || dg.structure : dg.structure}</td></tr>
+        <tr><td style="font-weight:600;">HMI</td><td>${en ? dg.hmiEn || dg.hmi : dg.hmi}</td></tr>
+      </table>
+    </div>
+  `;
+  },
+
+  certs7t: () => {
+    const kb = getKB();
+    const ce = kb.certifications;
+    const en = currentLang === 'en';
+    return `
+    <h2>${en ? ce.titleEn || ce.title : ce.title}</h2>
+    <p class="kb-subtitle">${en ? ce.descEn || ce.desc : ce.desc}</p>
+    <div class="kb-section">
+      <table class="info-table">
+        <thead><tr><th>${en ? 'Certification' : '认证'}</th><th>${en ? 'Details' : '明细'}</th></tr></thead>
+        <tbody>
+          ${ce.items.map(i => `<tr><td style="font-weight:600;">${en ? i.nameEn || i.name : i.name}</td><td>${en ? i.detailEn || i.detail : i.detail}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="tp-note">${en ? ce.noteEn || ce.note : ce.note}</div>
     </div>
   `;
   },

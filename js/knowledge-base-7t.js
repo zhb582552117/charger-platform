@@ -132,8 +132,37 @@ const KNOWLEDGE_BASE_7T = {
     companyProfile: { src: "images/7t/intro_01.png", title: "公司简介 (Company Profile)", desc: "上海施能电器设备有限公司，SINCE 1984" },
     // 排查指南
     troubleshootOverview: { src: "images/7t/troubleshoot_01.jpeg", title: "Elitra iON 7T 排查指南封面", desc: "2026年7月版" },
-    troubleshootParts: { src: "images/7t/troubleshoot_14.png", title: "部件结构图 (Parts Layout)", desc: "机箱内部部件布局" },
-    troubleshootHMI: { src: "images/7t/troubleshoot_16.png", title: "HMI界面详解", desc: "各功能区域说明" }
+    troubleshootParts: { src: "images/7t/7tdb_exploded.jpg", title: "整机爆炸图 (Exploded View)", desc: "部件编号标注的整机拆解图（资料库培训PPT）" },
+    troubleshootLayout: { src: "images/7t/troubleshoot_14.png", title: "部件结构图 (Parts Layout)", desc: "机箱内部部件布局" },
+    troubleshootHMI: { src: "images/7t/troubleshoot_16.png", title: "HMI界面详解", desc: "各功能区域说明" },
+    // ===== 资料库新增高清图（2026-11 说明书/培训PPT/规格书）=====
+    productFront: { src: "images/7t/7tdb_product_front.jpg", title: "整机外观 (Product Front)", desc: "CZC7T整机正面照" },
+    specPhoto: { src: "images/7t/7tdb_spec_photo.jpg", title: "产品外观与规格 (Product & Specs)", desc: "技术规格书封面产品图" },
+    doubleGunPhoto: { src: "images/7t/7tdb_double_gun.jpg", title: "双枪充电机 (Double-gun Charger)", desc: "双枪独立系统，7寸LCD同时显示两枪参数" },
+    explodedView2: { src: "images/7t/7tdb_exploded2.jpg", title: "爆炸图-机箱分解 (Exploded View 2)", desc: "机箱部件分解示意" },
+    userLogin: { src: "images/7t/7tdb_user_login.jpg", title: "用户登录 (User Login)", desc: "Setting→User Login，用户密码5678，管理员密码5656" },
+    hmiSettingsEn: { src: "images/7t/7tdb_hmi_settings.jpg", title: "设置菜单 (Settings)", desc: "Time Setting / Charging Parameters / Style setting" },
+    hmiTroubleEn1: { src: "images/7t/7tdb_hmi_trouble1.jpg", title: "故障排查帮助-英文 (Troubleshooting EN)", desc: "HMI内置故障排查帮助文档" },
+    hmiTroubleEn2: { src: "images/7t/7tdb_hmi_trouble2.jpg", title: "电压实测校准 (Voltage Check)", desc: "实测电池电压与显示值比对" },
+    hmiTroubleEn3: { src: "images/7t/7tdb_hmi_trouble3.jpg", title: "电压实测校准2 (Voltage Check 2)", desc: "万用表实测65.5V与显示值比对" },
+    operationPanel: { src: "images/7t/7tdb_operation_panel.png", title: "操作面板示意图 (Operation Panel)", desc: "4.3寸触摸屏面板布局（官方说明书）" },
+    lcdFront: { src: "images/7t/7tdb_lcd_front.jpg", title: "4.3寸LCD触摸屏 (4.3\" LCD)", desc: "MQ08串口LCD彩色触摸屏" },
+    dustClean: { src: "images/7t/7tdb_dust_clean.jpg", title: "清理防尘网 (Dust Screen Cleaning)", desc: "定期清理防尘网保证散热" },
+    dustStep1: { src: "images/7t/7tdb_dust_step1.jpg", title: "防尘网拆卸步骤1 (Step 1)", desc: "拆下防尘网固定件" },
+    dustStep2: { src: "images/7t/7tdb_dust_step2.jpg", title: "防尘网拆卸步骤2 (Step 2)", desc: "取出防尘网" },
+    dustStep3: { src: "images/7t/7tdb_dust_step3.jpg", title: "防尘网拆卸步骤3 (Step 3)", desc: "清理后装回" },
+    dustParts1: { src: "images/7t/7tdb_dust_parts1.jpg", title: "防尘网部件 (Dust Screen)", desc: "防尘网实物" },
+    dustParts2: { src: "images/7t/7tdb_dust_parts2.jpg", title: "防尘网与滤网 (Dust Screen & Filter)", desc: "不同规格防尘网" },
+    breakerPhoto: { src: "images/7t/7tdb_breaker.jpg", title: "断路器 (Breaker)", desc: "输入断路器，额定电流≥最大输入电流1.5~2倍" },
+    plugRed: { src: "images/7t/7tdb_plug_red.jpg", title: "充电插头-红 (Plug Red)", desc: "CEE工业插头" },
+    plugWhite: { src: "images/7t/7tdb_plug_white.jpg", title: "充电插头-白 (Plug White)", desc: "CEE工业插头（带温度探头）" },
+    gunBattery: { src: "images/7t/7tdb_gun_battery.jpg", title: "充电枪连接电池 (Gun to Battery)", desc: "充电枪与电池充电插座连接" },
+    internalWiring: { src: "images/7t/7tdb_internal_wiring.jpg", title: "内部接线端子 (Internal Wiring)", desc: "输入端子排接线" },
+    dimSmall: { src: "images/7t/7tdb_dim_small.jpg", title: "小型机箱尺寸图 (Small Enclosure Dim.)", desc: "518×272×405mm（官方说明书）" },
+    dimMedium: { src: "images/7t/7tdb_dim_medium.jpg", title: "中型机箱尺寸图 (Medium Enclosure Dim.)", desc: "610×317×541mm（官方说明书）" },
+    dimLarge: { src: "images/7t/7tdb_dim_large.jpg", title: "大型机箱尺寸图 (Large Enclosure Dim.)", desc: "780×390×690mm（官方说明书）" },
+    schematicMain: { src: "images/7t/7tdb_schematic.jpg", title: "电气原理图 (Schematic)", desc: "CZC7T电气原理图" },
+    moduleCodesDiagram: { src: "images/7t/fault_04.png", title: "模块工作代码表 (Module Work Codes)", desc: "standby/work/fault/off-line等代码" }
   },
 
   // ===== 故障代码列表 =====
@@ -905,18 +934,88 @@ const KNOWLEDGE_BASE_7T = {
     acRange: "单相: 230V±10% (220V); 三相: 320-520V",
     languages: "中文/英语/法语/意大利语/西班牙语/葡萄牙语",
     languagesEn: "Chinese/English/French/Italian/Spanish/Portuguese",
+    // ===== 官方中文手册技术参数表（1202050155 六语言说明书 2024.4.24定稿）=====
+    cnModels: [
+      { spec: "E30/100C",  input: "单相220V", inPower: "3.3kVA",  inCurrent: "15.2A", outCurrent: "100A", maxV: "30V",  weight: "-",  comm: "CAN", ip: "IP21", size: "518×272×405" },
+      { spec: "E30/200C",  input: "单相220V", inPower: "6.7kVA",  inCurrent: "30.3A", outCurrent: "200A", maxV: "30V",  weight: "42kg", comm: "CAN", ip: "IP21", size: "610×317×541" },
+      { spec: "D60/150C",  input: "三相380V", inPower: "9.7kVA",  inCurrent: "14.7A", outCurrent: "150A", maxV: "60V",  weight: "-",  comm: "CAN", ip: "IP21", size: "780×390×690" },
+      { spec: "D60/200C",  input: "三相380V", inPower: "12.9kVA", inCurrent: "19.6A", outCurrent: "200A", maxV: "60V",  weight: "74kg", comm: "CAN", ip: "IP21", size: "780×390×690" },
+      { spec: "D60/300C",  input: "三相380V", inPower: "19.4kVA", inCurrent: "29.4A", outCurrent: "300A", maxV: "60V",  weight: "76kg", comm: "CAN", ip: "IP21", size: "780×390×690" },
+      { spec: "D100/200C", input: "三相380V", inPower: "21.5kVA", inCurrent: "32.7A", outCurrent: "200A", maxV: "100V", weight: "74kg", comm: "CAN", ip: "IP21", size: "780×390×690" },
+      { spec: "D100/300C", input: "三相380V", inPower: "32.3kVA", inCurrent: "49.0A", outCurrent: "300A", maxV: "100V", weight: "85kg", comm: "CAN", ip: "IP21", size: "780×390×690" }
+    ],
+    // ===== 完整型号规格表（培训资料 Slide31，含电缆/插头规格）=====
+    specModels: [
+      { spec: "CZC7T-E30/100C",   battery: "24V",              input: "1P 220V", outPower: "3kW",   inPower: "3.3kVA",  maxIn: "15A", cable: "3×2.5mm²", plug: "2P+E/16A" },
+      { spec: "CZC7T-E60/50C",    battery: "48V",              input: "1P 220V", outPower: "3kW",   inPower: "3.3kVA",  maxIn: "15A", cable: "3×2.5mm²", plug: "2P+E/16A" },
+      { spec: "CZC7T-E30/200C",   battery: "24V",              input: "1P 220V", outPower: "6kW",   inPower: "6.7kVA",  maxIn: "30A", cable: "3×6mm²",   plug: "2P+E/32A" },
+      { spec: "CZC7T-E60/100C",   battery: "48V",              input: "1P 220V", outPower: "6kW",   inPower: "6.7kVA",  maxIn: "30A", cable: "3×6mm²",   plug: "2P+E/32A" },
+      { spec: "CZC7T-D60/100C",   battery: "36V/48V",          input: "3P 380V", outPower: "6kW",   inPower: "6.5kVA",  maxIn: "10A", cable: "4×1.5mm²", plug: "3P+E/16A" },
+      { spec: "CZC7T-D60/150C",   battery: "36V/48V",          input: "3P 380V", outPower: "9kW",   inPower: "9.7kVA",  maxIn: "15A", cable: "4×2.5mm²", plug: "3P+E/16A" },
+      { spec: "CZC7T-D100/100C",  battery: "36/48/72/80V",     input: "3P 380V", outPower: "10kW",  inPower: "10.8kVA", maxIn: "16A", cable: "4×2.5mm²", plug: "3P+E/16A" },
+      { spec: "CZC7T-D60/200C",   battery: "36V/48V",          input: "3P 380V", outPower: "12kW",  inPower: "12.9kVA", maxIn: "20A", cable: "4×4mm²",   plug: "3P+E/32A" },
+      { spec: "CZC7T-D60/300C",   battery: "36V/48V",          input: "3P 380V", outPower: "18kW",  inPower: "19.4kVA", maxIn: "29A", cable: "4×6mm²",   plug: "3P+E/32A" },
+      { spec: "CZC7T-D100/150C",  battery: "36/48/72/80V",     input: "3P 380V", outPower: "15kW",  inPower: "16.1kVA", maxIn: "25A", cable: "4×6mm²",   plug: "3P+E/32A" },
+      { spec: "CZC7T-D100/200C",  battery: "36/48/72/80V",     input: "3P 380V", outPower: "20kW",  inPower: "21.5kVA", maxIn: "33A", cable: "4×6mm²",   plug: "3P+E/63A" },
+      { spec: "CZC7T-D100/300C",  battery: "36/48/72/80V",     input: "3P 380V", outPower: "30kW",  inPower: "32.3kVA", maxIn: "49A", cable: "4×16mm²",  plug: "3P+E/63A" },
+      { spec: "CZC7T-D120/50C",   battery: "36/48/72/80/96/102V", input: "3P 380V", outPower: "6kW",   inPower: "6.5kVA",  maxIn: "10A", cable: "4×1.5mm²", plug: "3P+E/16A" },
+      { spec: "CZC7T-D120/180C",  battery: "36/48/72/80/96/102V", input: "3P 380V", outPower: "20kW",  inPower: "21.5kVA", maxIn: "33A", cable: "4×6mm²",   plug: "3P+E/63A" },
+      { spec: "CZC7T-D150/50C",   battery: "96V/102V/120V",    input: "3P 380V", outPower: "7.5kW", inPower: "8.1kVA",  maxIn: "12A", cable: "4×2.5mm²", plug: "3P+E/16A" },
+      { spec: "CZC7T-D150/130C",  battery: "96V/102V/120V",    input: "3P 380V", outPower: "19.5kW",inPower: "21kVA",   maxIn: "32A", cable: "4×6mm²",   plug: "3P+E/63A" }
+    ],
+    // ===== 双枪/大功率机型（培训资料 Slide32）=====
+    doubleGunModels: [
+      { spec: "CZC7T-D60/200C×2",  battery: "36V/48V",              outPower: "24kW", inPower: "25.8kVA", maxIn: "39A", cable: "4×10mm²",  plug: "3P+E/63A" },
+      { spec: "CZC7T-D100/200C×2", battery: "36/48/72/80V",         outPower: "40kW", inPower: "43kVA",   maxIn: "65A", cable: "4×16mm²",  plug: "3P+E/125A" },
+      { spec: "CZC7T-D120/225C",   battery: "36/48/72/80/96/102V",  outPower: "27kW", inPower: "31kVA",   maxIn: "47A", cable: "4×10mm²",  plug: "3P+E/63A" },
+      { spec: "CZC7T-D120/300C",   battery: "36/48/72/80/96/102V",  outPower: "36kW", inPower: "38.7kVA", maxIn: "59A", cable: "4×16mm²",  plug: "3P+E/63A" },
+      { spec: "CZC7T-D120/180C×2", battery: "36/48/72/80/96/102V",  outPower: "40kW", inPower: "43kVA",   maxIn: "65A", cable: "4×16mm²",  plug: "3P+E/125A" },
+      { spec: "CZC7T-D120/360C",   battery: "36/48/72/80/96/102V",  outPower: "40kW", inPower: "43kVA",   maxIn: "65A", cable: "4×16mm²",  plug: "3P+E/125A" },
+      { spec: "CZC7T-D150/260C",   battery: "96V/102V/120V",        outPower: "39kW", inPower: "42kVA",   maxIn: "64A", cable: "4×16mm²",  plug: "3P+E/125A" }
+    ],
+    // ===== UL/美标机型（technical specification 20250115）=====
+    ulModels: [
+      { spec: "CZC7T-E100/70U", input: "1P+N+PE 208~240Vac", inPower: "7.5kVA",  inCurrent: "34.2A", outCurrent: "70A",  maxV: "100V", vRange: "30~100V", size: "627.5×307×541" },
+      { spec: "CZC7T-E60/100U", input: "1P+N+PE 208~240Vac", inPower: "6.7kVA",  inCurrent: "30.3A", outCurrent: "100A", maxV: "60V",  vRange: "20~60V",  size: "627.5×307×541" },
+      { spec: "CZC7T-D60/200U", input: "3P+PE 208~240Vac",   inPower: "12.9kVA", inCurrent: "33.9A", outCurrent: "200A", maxV: "60V",  vRange: "30~60V",  size: "763×432×1195" },
+      { spec: "CZC7T-D60/300U", input: "3P+PE 480Vac",       inPower: "19.4kVA", inCurrent: "23.3A", outCurrent: "300A", maxV: "60V",  vRange: "20~60V",  size: "800×432×710" },
+      { spec: "CZC7T-D100/200U",input: "3P+PE 208~240Vac",   inPower: "21.5kVA", inCurrent: "56.4A", outCurrent: "200A", maxV: "100V", vRange: "30~100V", size: "763×432×1195" },
+      { spec: "CZC7T-D100/300U",input: "3P+PE 480Vac",       inPower: "32.3kVA", inCurrent: "38.8A", outCurrent: "300A", maxV: "100V", vRange: "30~100V", size: "800×432×710" }
+    ],
+    // ===== 电气特性（EI/7T/EP Product Difference Description）=====
+    electrical: [
+      { name: "充电功率模块", nameEn: "Power Module", value: "2× YKR 10kW 模块并联", valueEn: "2× YKR 10kW modules in parallel" },
+      { name: "额定输出功率", nameEn: "Rated Output Power", value: "20kW (以D100/200C为例)", valueEn: "20kW (D100/200C as example)" },
+      { name: "输出电压范围", nameEn: "Output Voltage Range", value: "30-100Vdc", valueEn: "30-100Vdc" },
+      { name: "限流可调范围", nameEn: "Current Limit Range", value: "10%~110% 可调", valueEn: "10%~110% adjustable" },
+      { name: "电压纹波", nameEn: "Voltage Ripple", value: "≤1%", valueEn: "≤1%" },
+      { name: "稳压精度", nameEn: "Voltage Regulation", value: "≤±0.5%", valueEn: "≤±0.5%" },
+      { name: "稳流精度", nameEn: "Current Regulation", value: "≤±1%", valueEn: "≤±1%" },
+      { name: "均流不均度", nameEn: "Current Sharing", value: "≤±5%", valueEn: "≤±5%" },
+      { name: "效率", nameEn: "Efficiency", value: "≥93%", valueEn: "≥93%" },
+      { name: "功率因数", nameEn: "Power Factor", value: "≥0.99", valueEn: "≥0.99" },
+      { name: "输入电流谐波", nameEn: "THD", value: "≤5%", valueEn: "≤5%" },
+      { name: "输入频率", nameEn: "Frequency", value: "45Hz~65Hz", valueEn: "45Hz~65Hz" },
+      { name: "工作温度", nameEn: "Working Temp", value: "-20℃~50℃正常；50℃~75℃降额运行", valueEn: "-20℃~50℃ normal; 50℃~75℃ derated" },
+      { name: "存储温度", nameEn: "Storage Temp", value: "-40℃~75℃", valueEn: "-40℃~75℃" },
+      { name: "相对湿度", nameEn: "Humidity", value: "10%~95%", valueEn: "10%~95%" },
+      { name: "介电强度", nameEn: "Dielectric Strength", value: "输入-外壳 2500VAC/1min；输入-输出 3000VAC/1min", valueEn: "Input-case 2500VAC/1min; Input-output 3000VAC/1min" }
+    ],
     userPassword: "5678",
     adminPassword: "5656"
   },
 
   workingConditions: {
+    source: "依据官方产品说明书（1202050155 六语言说明书）",
+    sourceEn: "Per official product manual (1202050155)",
     conditions: [
-      "工作温度: -10°C ~ +50°C / Operating Temp: -10°C ~ +50°C",
-      "存储温度: -20°C ~ +60°C / Storage Temp: -20°C ~ +60°C",
-      "相对湿度: 5% ~ 95% (无凝露) / Humidity: 5% ~ 95% (no condensation)",
-      "海拔: ≤2000m / Altitude: ≤2000m",
-      "防护等级: IP21 / Protection: IP21",
-      "AC电压范围: 单相230V±10%, 三相320-520V"
+      "海拔高度不超过1000米 / Altitude ≤ 1000m",
+      "周围介质温度不高于+45℃及不低于-10℃ / Ambient temp: -10℃ ~ +45℃",
+      "空气相对湿度不大于95%（介质温度20±5℃时）/ Humidity ≤ 95% (at 20±5℃)",
+      "没有雨雪侵袭、无导电尘埃、无爆炸危险的环境 / No rain/snow, no conductive dust, no explosion risk",
+      "不含有能腐蚀金属及破坏绝缘的气体、蒸汽的环境 / No corrosive gas or vapor",
+      "必须放置于通风良好环境，避免热量堆积导致散热异常 / Well-ventilated area, avoid heat accumulation",
+      "垂直面倾斜不超过5度及无剧烈振动和冲击的地方 / Tilt ≤ 5°, no severe vibration or shock"
     ]
   },
 
@@ -1043,7 +1142,8 @@ const KNOWLEDGE_BASE_7T = {
       "Pull the handle, slide out the module",
       "Insert new module into position, ensure fully seated",
       "Install baffle and dust screen"
-    ]
+    ],
+    images: ["dustClean", "dustStep1", "dustStep2", "dustStep3", "dustParts1", "dustParts2", "internalWiring"]
   },
 
   // ===== 软件升级 =====
@@ -1104,7 +1204,7 @@ const KNOWLEDGE_BASE_7T = {
       { name: "LCC", desc: "低恒流。用于加水铅酸IUIa曲线 / Low constant current for IUIa" },
       { name: "OVP (过压保护)", desc: "默认: 规格电压+2V / Default: spec V +2V" },
       { name: "OCP (过流保护)", desc: "默认: 规格电流×120% / Default: spec I ×120%" },
-      { name: "充电曲线 (Charging Curve)", desc: "1:IUa 2:IUIa 3:IUUa 4:IIa 5:IUa-国标 6:IUa-EKITO 7:IUa-葡语 8:IUa-盲充" },
+      { name: "充电曲线 (Charging Curve)", desc: "即通讯协议选择：国标协议曲线 / 6:APROLIS(EKITO)协议 / 7:葡语协议 / 8:盲充。正常使用无需修改", descEn: "Protocol selection: GB protocol curve / 6: APROLIS(EKITO) / 7: Portuguese / 8: blind charge. No change needed for normal use" },
       { name: "语言 (Language)", desc: "中/英/法/意/西/葡 6种可选" }
     ],
     page3: [
@@ -1153,22 +1253,60 @@ const KNOWLEDGE_BASE_7T = {
     cable: {
       title: "交流电缆选型",
       titleEn: "AC Cable Selection",
-      note: "符合当地电缆使用规则，根据材质和敷设方式查表选择",
-      noteEn: "Follow local cable regulations, select by material and installation method"
+      note: "100A以下按 4~5A/mm² 估算铜芯截面；100A以上按电缆类型和敷设方式查表。均应符合当地规范",
+      noteEn: "Below 100A: estimate 4~5A/mm² copper; above 100A: select by cable type and laying method per local regulations",
+      bvTitle: "BV-500V 铜芯导线长期允许载流量（A，30℃）",
+      bvTitleEn: "BV-500V copper conductor allowable ampacity (A, 30°C)",
+      bvTable: [
+        { section: "1.0", air: "18", tube2: "13", tube3: "12", tube4: "10" },
+        { section: "1.5", air: "22", tube2: "18", tube3: "16", tube4: "15" },
+        { section: "2.5", air: "30", tube2: "24", tube3: "22", tube4: "21" },
+        { section: "4",   air: "39", tube2: "33", tube3: "29", tube4: "26" },
+        { section: "6",   air: "51", tube2: "44", tube3: "38", tube4: "35" },
+        { section: "10",  air: "70", tube2: "61", tube3: "53", tube4: "47" },
+        { section: "16",  air: "98", tube2: "77", tube3: "68", tube4: "61" },
+        { section: "25",  air: "128", tube2: "100", tube3: "89", tube4: "80" },
+        { section: "35",  air: "159", tube2: "124", tube3: "107", tube4: "98" },
+        { section: "50",  air: "201", tube2: "154", tube3: "136", tube4: "121" },
+        { section: "70",  air: "248", tube2: "192", tube3: "171", tube4: "154" },
+        { section: "95",  air: "304", tube2: "234", tube3: "210", tube4: "187" },
+        { section: "120", air: "-", tube2: "266", tube3: "248", tube4: "215" },
+        { section: "150", air: "-", tube2: "299", tube3: "276", tube4: "252" }
+      ],
+      kvTitle: "1kV 电力电缆长期允许载流量（A，空气中敷设）",
+      kvTitleEn: "1kV power cable allowable ampacity (A, laid in air)",
+      kvTable: [
+        { spec: "4×10",  air: "57",  buried: "71" },
+        { spec: "4×16",  air: "76",  buried: "93" },
+        { spec: "4×25",  air: "101", buried: "120" },
+        { spec: "4×35",  air: "124", buried: "145" },
+        { spec: "4×50",  air: "158", buried: "178" },
+        { spec: "4×70",  air: "191", buried: "231" },
+        { spec: "4×95",  air: "234", buried: "255" },
+        { spec: "4×120", air: "269", buried: "286" },
+        { spec: "4×150", air: "311", buried: "326" },
+        { spec: "4×185", air: "359", buried: "365" }
+      ],
+      kvNote: "表中为 YJV 型（交联聚乙烯）载流量；直埋为 YJV22 型。现场配电不足时，可在 Charging Parameters 1/7 界面调低“恒定电流(Constant I)”限制输出功率（需先登录）",
+      kvNoteEn: "Values for YJV type; buried values for YJV22. If site power is insufficient, reduce 'Constant I' in Charging Parameters 1/7 (login required)"
     }
   },
 
   // ===== 联系方式 =====
   contact: {
     company: "上海施能电器设备有限公司",
-    companyEn: "Shanghai Shineng Electric Appliances Co., Ltd.",
-    address: "上海市浦东新区杭头镇大麦湾工业区",
-    addressEn: "Damaiwan Industrial Zone, Hangtou Town, Pudong New District, Shanghai",
-    zipCode: "201323",
-    sales: ["4008-883-026", "86-021-58221666"],
+    companyEn: "Shanghai Shineng Electrical Equipment Co., Ltd.",
+    address: "上海市浦东新区航头镇杭明路22号",
+    addressEn: "No.22 Hangming Rd., Hangtou Town, Pudong New District, Shanghai, China",
+    zipCode: "201316",
+    sales: ["021-58222666"],
+    hotline: "021-58222666",
+    hotlineEn: "Hotline: 021-58222666",
+    techSupportHotline: "021-58228080",
+    techSupportHotlineEn: "Technical support: 021-58228080",
     fax: "86-021-58221666",
     technicalSupport: "86-13761852345",
-    afterSales: "4008-883-026 (售后热线)",
+    afterSales: "021-58222666 (售后热线)",
     emergency: "+8613917175637",
     email: "zhoubin@shineng.com",
     website: "www.shineng.com"
@@ -1190,6 +1328,71 @@ const KNOWLEDGE_BASE_7T = {
       { type: "技术支持", condition: "远程指导无法解决的问题", action: "可安排技术人员上门服务" }
     ],
     note: "所有BMS故障均发生在电池端，充电机仅显示。请联系电池供应商获取更详细的原因。"
+  },
+
+  // ===== 机型对比（EI/7T/EP Product Difference Description）=====
+  modelComparison: {
+    title: "7T / 7EI / 7EP 机型对比",
+    titleEn: "7T / 7EI / 7EP Model Comparison",
+    desc: "以同规格机型（100V/200A/20kW）为例对比三大系列差异：",
+    descEn: "Comparison of the three series using same-spec models (100V/200A/20kW):",
+    headers: ["对比项", "CZC7T", "CZC7EI", "CZC7EP"],
+    headersEn: ["Item", "CZC7T", "CZC7EI", "CZC7EP"],
+    rows: [
+      { item: "充电功率模块", itemEn: "Power Module", t: "2× YKR 10kW 模块", ei: "1× MGMT 20kW 模块", ep: "1× LM 20kW 模块" },
+      { item: "显示方式", itemEn: "Display", t: "4.3寸 LCD 触摸屏", ei: "数码管显示", ep: "4.6寸 LCD 屏" },
+      { item: "操作方式", itemEn: "Operation", t: "触摸屏操作", ei: "机械按键", ep: "机械按键" },
+      { item: "参数设置", itemEn: "Parameter Setting", t: "用户可在屏上设置", ei: "PC设置（通常出厂默认）", ep: "按键设置" },
+      { item: "充电模式", itemEn: "Charging Mode", t: "正常/预约/加热/强制", ei: "正常/预约/加热/强制", ep: "支持盲充，可设强制充电" },
+      { item: "急停方式", itemEn: "Emergency Shutdown", t: "关断路器", ei: "急停按钮", ep: "无急停，关断路器" },
+      { item: "外形尺寸(宽深高)", itemEn: "Dimensions (W×D×H)", t: "780×380×690mm", ei: "625×371×355mm", ep: "555×260×330mm" },
+      { item: "净重", itemEn: "Net Weight", t: "62kg", ei: "57kg", ep: "30kg" }
+    ]
+  },
+
+  // ===== 双枪机型 =====
+  doubleGun: {
+    title: "双枪充电机",
+    titleEn: "Double-gun Charger",
+    desc: "双枪充电机由两套独立充电系统组成，参数可分别设置；可兼容不同通讯协议，实现一拖二充电，也可双枪同充一块电池（电池需配2个充电接口和2个独立CAN口）。",
+    descEn: "The double-gun charger consists of two independent charging systems with separately settable parameters. Compatible with different protocols for one-to-two charging, or dual-gun charging of one battery (battery needs 2 charging ports and 2 independent CAN ports).",
+    features: [
+      "两套独立充电系统，参数分别设置",
+      "兼容不同通讯协议，一拖二充电",
+      "双枪同充一块电池（电池需2个充电口+2个独立CAN口）",
+      "7寸LCD触摸屏，同时显示两枪充电参数",
+      "完善保护：开路、接反、过流、过压、过热、缺相",
+      "标配中国国标充电枪：机械按钮实现无电拔枪，枪头内置温度探头防过温"
+    ],
+    featuresEn: [
+      "Two independent charging systems, separate parameters",
+      "Compatible with different protocols, one-to-two charging",
+      "Dual-gun charging of one battery (2 ports + 2 CAN ports required)",
+      "7-inch LCD touch screen showing both guns simultaneously",
+      "Full protection: open-circuit, reverse, over-current, over-voltage, over-heat, phase loss",
+      "Chinese standard gun with mechanical button (unplug without power) and temperature probe"
+    ],
+    structure: "内部结构：PCBA(A4+A5)、PCBA(A1+A2)、AC/DC电源、断路器、接线端子排、LCD、直流接触器 ×2 套",
+    structureEn: "Structure: PCBA(A4+A5), PCBA(A1+A2), AC/DC supply, breaker, terminal block, LCD, DC contactor ×2 sets",
+    image: "doubleGunPhoto",
+    hmi: "主界面点击对应区域分别进入枪1/枪2界面；登录与设置与单枪机型一致（用户5678/管理员5656）",
+    hmiEn: "Main interface: tap to enter gun 1 / gun 2 pages. Login and settings same as single-gun (user 5678 / admin 5656)"
+  },
+
+  // ===== 认证证书 =====
+  certifications: {
+    title: "认证与证书",
+    titleEn: "Certifications",
+    desc: "CZC7T系列已取得以下认证（证书原件见资料库）：",
+    descEn: "CZC7T series certifications (originals in database):",
+    items: [
+      { name: "CE认证 - SGS", nameEn: "CE (SGS)", detail: "单相EMC / 三相EMC / 单相LVD / 三相LVD", detailEn: "1-phase EMC / 3-phase EMC / 1-phase LVD / 3-phase LVD" },
+      { name: "UL认证 - NRTL", nameEn: "UL (NRTL)", detail: "单相美标 / 480V机型 / UL1564 (240V/480V/600V)", detailEn: "1-phase NRTL / 480V models / UL1564 (240V/480V/600V)" },
+      { name: "FCC认证", nameEn: "FCC", detail: "480V机型", detailEn: "480V models" },
+      { name: "符合性声明", nameEn: "Declaration of Conformity", detail: "CE DoC", detailEn: "CE DoC" }
+    ],
+    note: "U后缀机型（如D100/200U）为UL美标版本，输入电压为208~240Vac或480Vac；C后缀为CE版本（220V/380V）",
+    noteEn: "U-suffix models (e.g. D100/200U) are UL versions with 208~240Vac or 480Vac input; C-suffix are CE versions (220V/380V)"
   },
 
   // ===== 命名规则 =====
@@ -1297,36 +1500,36 @@ const KNOWLEDGE_BASE_7T = {
   installation: {
     site: {
       requirements: [
-        "安装场所应通风良好，无腐蚀性气体",
-        "安装场所应无导电尘埃和爆炸性气体",
-        "避免阳光直射和雨淋",
-        "安装面应平整，能承受充电机重量",
-        "充电机周围应留有足够的散热空间（顶部≥200mm，侧面≥100mm）",
+        "确认所用的电网电压与本机的额定输入电压一致",
+        "本机应放置在通风干燥的地方，避开高温、灰尘及腐蚀性气体",
+        "避免直接放置在阳光下与风吹雨淋；放置在室外时，需安装雨棚",
+        "充电机周围30cm的空间内，不得有妨碍通风的物体遮挡，并经常检查四周通风口是否堵塞",
+        "安装面应平整，能承受充电机重量，垂直面倾斜不超过5度，无剧烈振动和冲击",
         "确保防尘网可方便拆卸清理"
       ],
       requirementsEn: [
-        "Well-ventilated, no corrosive gases",
-        "No conductive dust or explosive gases",
-        "Avoid direct sunlight and rain",
-        "Flat mounting surface, can bear charger weight",
-        "Sufficient cooling space (top ≥200mm, sides ≥100mm)",
+        "Confirm the grid voltage matches the charger's rated input voltage",
+        "Place in a dry, well-ventilated area away from heat, dust and corrosive gases",
+        "Avoid direct sunlight and rain; install a canopy if placed outdoors",
+        "Keep 30cm clearance around the charger for ventilation; check air vents regularly",
+        "Flat mounting surface bearing the weight, tilt ≤ 5°, no severe vibration or shock",
         "Dust screen must be easily removable for cleaning"
       ]
     },
     wiring: {
       requirements: [
-        "使用符合规格的电源电缆，根据最大输入电流选择线径",
+        "电源线输入导线截面积规格应符合技术参数表的要求（见技术参数-完整规格表）",
+        "建议充电机电源输入导线直接与配电柜动力型空气开关连接，开关额定电流应大于等于充电机最大输入电流的1.5~2倍",
         "三相机型: 3P+E (3相+地线)，单相: 1P+N+Earth",
-        "断路器额定电流应接近充电机最大输入电流",
-        "输出电缆截面积需匹配充电电流",
+        "输出电缆截面积需匹配充电电流（参考各型号电缆规格）",
         "CAN通讯线: S+/S-双绞屏蔽线，终端120Ω电阻",
         "所有接线必须牢固，无松动"
       ],
       requirementsEn: [
-        "Use correctly rated power cables based on max input current",
+        "Input conductor cross-section must meet the technical parameter table (see Full Spec Table)",
+        "Connect input directly to a power-type breaker; breaker rating ≥ 1.5~2× charger max input current",
         "3-phase: 3P+E, Single-phase: 1P+N+Earth",
-        "Breaker rated current close to max input current",
-        "Output cable gauge must match charging current",
+        "Output cable gauge must match charging current (see per-model cable spec)",
         "CAN: S+/S- twisted shielded pair, 120Ω terminator",
         "All connections must be secure"
       ]
